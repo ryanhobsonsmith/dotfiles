@@ -1,1 +1,3 @@
 alias config='/usr/bin/git --git-dir=/Users/rhsmith/.cfg/ --work-tree=/Users/rhsmith'
+alias bwinit='export BW_SESSION=$(bw login $email --raw)'
+alias cm='chezmoi'
