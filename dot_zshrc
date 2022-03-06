@@ -59,6 +59,9 @@ alias rrc='exec zsh'
 alias k='kubectl'
 alias hpr="hub pull-request"
 alias cm="chezmoi"
+alias bwl='export BW_SESSION=$(bw login $email --raw)'
+alias bwu='export BW_SESSION=$(bw unlock --raw)'
+alias cmpush='bash -c "cd $(chezmoi source-path) && git add . && git commit -m \"cmpush\" && git push"'
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh" || true
 
