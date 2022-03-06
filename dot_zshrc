@@ -1,0 +1,62 @@
+#!/bin/zsh
+
+export LANG=en_US.UTF-8
+bindkey -v
+bindkey '^R' history-incremental-search-backward
+export CLICOLOR=1
+export LSCOLORS=ExFxCxDxBxegedabagacad
+export PATH="/usr/local/opt/openjdk/bin:$PATH"
+source $HOME/.cargo/env
+
+#setopt auto_cd
+cdpath=($HOME/chomp $HOME/curbflow)
+
+zstyle ':autocomplete:*' insert-unambiguous yes
+zstyle ':autocomplete:*' widget-style menu-select
+#zstyle ':autocomplete:*' min-delay 0.9
+source $HOME/.zshlib/zsh-autocomplete/zsh-autocomplete.plugin.zsh
+source $HOME/.zshlib/zsh-yarn-autocompletions/release/yarn-autocompletions.plugin.zsh
+#source $HOME/.zshlib/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+# Enable and configure pure prompt
+autoload -U promptinit; promptinit
+prompt pure
+
+export EDITOR='vim'
+
+
+function wip () {
+  echo $1
+  if [ $# -eq 0 ]
+  then
+    message="WIP"
+  else
+    message="$1"
+  fi 
+
+  echo $message
+  cd "$(git rev-parse --show-toplevel)"; git status; git add --all .; git commit -m "$message";
+  cd -
+}
+
+# NVM SETUP
+export NVM_DIR="$HOME/.nvm"
+[ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"  # This loads nvm
+
+eval "$(direnv hook zsh)"
+
+alias pbpon='/Users/rhsmith/itxchh-ddcctl/bin/release/ddcctl -d 1 -pbp 36'
+alias pbpoff='/Users/rhsmith/itxchh-ddcctl/bin/release/ddcctl -d 1 -pbp 0'
+alias pbpdp='/Users/rhsmith/itxchh-ddcctl/bin/release/ddcctl -d 1 -pbp-screen 15'
+alias pbphdmi='/Users/rhsmith/itxchh-ddcctl/bin/release/ddcctl -d 1 -pbp-screen 17'
+alias sipusb='/Users/rhsmith/itxchh-ddcctl/bin/release/ddcctl -d 1 -i 27'
+alias siphdmi='/Users/rhsmith/itxchh-ddcctl/bin/release/ddcctl -d 1 -i 17'
+alias sipdp='/Users/rhsmith/itxchh-ddcctl/bin/release/ddcctl -d 1 -i 15'
+alias erc='vim ~/.zshrc'
+alias rrc='exec zsh'
+alias k='kubectl'
+alias hpr="hub pull-request"
+alias cm="chezmoi"
+
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh" || true
+
