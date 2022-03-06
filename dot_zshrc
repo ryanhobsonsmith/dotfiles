@@ -13,6 +13,7 @@ cdpath=($HOME/chomp $HOME/curbflow)
 
 zstyle ':autocomplete:*' insert-unambiguous yes
 zstyle ':autocomplete:*' widget-style menu-select
+zstyle ':autocomplete:*' min-input 1
 #zstyle ':autocomplete:*' min-delay 0.9
 source $HOME/.zshlib/zsh-autocomplete/zsh-autocomplete.plugin.zsh
 source $HOME/.zshlib/zsh-yarn-autocompletions/release/yarn-autocompletions.plugin.zsh
