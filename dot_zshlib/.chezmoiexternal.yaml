@@ -1,0 +1,15 @@
+---
+zsh-autocomplete:
+  type: 'git-repo'
+  url: 'https://github.com/marlonrichert/zsh-autocomplete.git'
+  refreshPeriod: "168h"
+
+zsh-autosuggestions:
+  type: 'git-repo'
+  url: 'https://github.com/zsh-users/zsh-autosuggestions'
+  refreshPeriod: "168h"
+
+zsh-yarn-autocompletions:
+  type: 'git-repo'
+  url: 'git@github.com:g-plane/zsh-yarn-autocompletions'
+  refreshPeriod: "168h"
