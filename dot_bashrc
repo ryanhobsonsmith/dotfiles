@@ -1,0 +1,2 @@
+alias config='/usr/bin/git --git-dir=/Users/rhsmith/.cfg/ --work-tree=/Users/rhsmith'
+echo 'chezmoi'
