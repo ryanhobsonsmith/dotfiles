@@ -19,6 +19,7 @@ source $HOME/.zshlib/zsh-yarn-autocompletions/release/yarn-autocompletions.plugi
 #source $HOME/.zshlib/zsh-autosuggestions/zsh-autosuggestions.zsh
 
 # Enable and configure pure prompt
+fpath+=/opt/homebrew/share/zsh/site-functions
 autoload -U promptinit; promptinit
 prompt pure
 
