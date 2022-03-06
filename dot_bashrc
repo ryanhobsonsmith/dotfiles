@@ -1,4 +1,4 @@
 alias config='/usr/bin/git --git-dir=/Users/rhsmith/.cfg/ --work-tree=/Users/rhsmith'
 alias bwinit='export BW_SESSION=$(bw login $email --raw)'
 alias cm='chezmoi'
-alias cmpush='bash -c "cd $(chezmoi source-path) && git add . && git commit -m \"cmpush\"" && git push'
+alias cmpush='bash -c "cd $(chezmoi source-path) && git add . && git commit -m \"cmpush\" && git push"'
