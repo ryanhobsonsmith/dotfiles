@@ -1,7 +1,8 @@
 keybind = cmd+shift+r=prompt_tab_title
 font-family = "Inconsolata Nerd Font Mono Bold"
+font-size = 16
 
 theme = Catppuccin Mocha
 
 window-save-state = always
-background-opacity = 0.97
+link-url = true

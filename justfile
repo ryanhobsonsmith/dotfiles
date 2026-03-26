@@ -9,21 +9,10 @@ drift:
     @echo "=== Files that differ from chezmoi source ==="
     @chezmoi verify 2>&1 && echo "No drift detected." || chezmoi diff
 
-# Apply chezmoi source state to home (prompts if there are changes)
+# Apply chezmoi source state to home (shows diff, then applies)
 apply:
-    @if chezmoi verify 2>/dev/null; then \
-        echo "No changes to apply."; \
-    else \
-        chezmoi diff; \
-        echo ""; \
-        read -p "Apply these changes? [y/N] " confirm; \
-        if [ "$$confirm" = "y" ] || [ "$$confirm" = "Y" ]; then \
-            chezmoi apply; \
-            echo "Applied."; \
-        else \
-            echo "Aborted."; \
-        fi \
-    fi
+    chezmoi diff || true
+    chezmoi apply
 
 # Build the test Docker image
 build:
