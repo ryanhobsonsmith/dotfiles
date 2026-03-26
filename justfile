@@ -1,5 +1,30 @@
 image := "dotfiles-test"
 
+# Show what chezmoi would change (dry-run)
+diff:
+    chezmoi diff
+
+# Check for drift between home and source state
+drift:
+    @echo "=== Files that differ from chezmoi source ==="
+    @chezmoi verify 2>&1 && echo "No drift detected." || chezmoi diff
+
+# Apply chezmoi source state to home (prompts if there are changes)
+apply:
+    @if chezmoi verify 2>/dev/null; then \
+        echo "No changes to apply."; \
+    else \
+        chezmoi diff; \
+        echo ""; \
+        read -p "Apply these changes? [y/N] " confirm; \
+        if [ "$$confirm" = "y" ] || [ "$$confirm" = "Y" ]; then \
+            chezmoi apply; \
+            echo "Applied."; \
+        else \
+            echo "Aborted."; \
+        fi \
+    fi
+
 # Build the test Docker image
 build:
     docker build -t {{image}} .

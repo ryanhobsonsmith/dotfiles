@@ -24,4 +24,6 @@ RUN chezmoi init && chezmoi apply --force
 RUN echo "=== Verifying dotfiles ===" \
     && test -f ~/.tmux.conf && echo "OK: .tmux.conf" \
     && test -d ~/.tmux/plugins/tpm && echo "OK: TPM installed" \
+    && test -d ~/.tmux/plugins/tmux && echo "OK: catppuccin/tmux installed" \
+    && test -f ~/.config/ghostty/config && echo "OK: ghostty config" \
     && echo "=== All checks passed ==="

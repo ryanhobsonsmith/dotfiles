@@ -32,7 +32,8 @@ chezmoi update                 # pull from remote and apply
 
 | File | Description |
 |---|---|
-| `.tmux.conf` | Tmux configuration (prefix `C-a`, vim bindings, TPM plugins) |
+| `.tmux.conf` | Tmux configuration (prefix `C-a`, vim bindings, Catppuccin Mocha, TPM plugins) |
+| `.config/ghostty/config` | Ghostty terminal config (Catppuccin Mocha, Nerd Font) |
 
 ## Testing
 
