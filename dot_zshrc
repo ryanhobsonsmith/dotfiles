@@ -188,3 +188,28 @@ export PATH="/Users/rhsmith/.antigravity/antigravity/bin:$PATH"
 
 # opencode
 export PATH=/Users/rhsmith/.opencode/bin:$PATH
+
+# Create a tmux session for a worktree/project directory
+# Usage: tw [path] — defaults to current directory
+tw() {
+  local dir="${1:-.}"
+  dir="$(cd "$dir" && pwd)" || { echo "Invalid directory: $1"; return 1; }
+
+  local session_name="$(basename "$dir")"
+
+  if tmux has-session -t "$session_name" 2>/dev/null; then
+    tmux attach-session -t "$session_name"
+    return
+  fi
+
+  tmux new-session -d -s "$session_name" -c "$dir" -n "nvim"
+  tmux send-keys -t "$session_name:nvim" "nvim" Enter
+
+  tmux new-window -t "$session_name" -c "$dir" -n "shell"
+
+  tmux new-window -t "$session_name" -c "$dir" -n "claude"
+  tmux send-keys -t "$session_name:claude" "claude" Enter
+
+  tmux select-window -t "$session_name:nvim"
+  tmux attach-session -t "$session_name"
+}
