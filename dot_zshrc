@@ -45,10 +45,8 @@ function wip () {
   cd -
 }
 
-# NVM SETUP
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+# fnm (fast node manager)
+eval "$(fnm env --use-on-cd --shell zsh --version-file-strategy=recursive)"
 
 eval "$(direnv hook zsh)"
 
@@ -69,7 +67,6 @@ alias kga='kubectl get -A'
 alias kk='kubectl kustomize'
 alias kak='kubectl apply -k'
 alias hpr="hub pull-request"
-alias cm="chezmoi"
 alias bwl='export BW_SESSION=$(bw login $email --raw)'
 alias bwu='export BW_SESSION=$(bw unlock --raw)'
 alias cmpush='bash -c "cd $(chezmoi source-path) && git add . && git commit -m \"cmpush\" && git push"'
@@ -81,6 +78,15 @@ alias mm1="set-display-inputs hdmi2 hdmi2"
 alias mm1dp="set-display-inputs hdmi2 dp"
 alias mdpdp="set-display-inputs dp dp"
 alias mlx="set-display-inputs dp hdmi1"
+
+#chezmoi aliases
+alias cm="chezmoi"
+alias cma="chezmoi apply"
+alias cme="chezmoi edit"
+alias cmea="chezmoi edit --apply"
+alias cmcd="chezmoi cd"
+alias cmd="chezmoi diff"
+alias cmg="chezmoi git"
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh" || true
 
@@ -100,13 +106,19 @@ export ANDROID_HOME="/Users/rhsmith/Library/Android/sdk"
 export PATH="/opt/homebrew/opt/postgresql@15/bin:$PATH"
 
 
-# Homebrew Shell Completions
+# Homebrew Shell Completions (cached — regenerates once per day)
 if type brew &>/dev/null
 then
   FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
-
-  autoload -Uz compinit
-  compinit
+fi
+autoload -Uz compinit
+if [[ -z "$ZSH_COMPDUMP" ]]; then
+  ZSH_COMPDUMP="${ZDOTDIR:-$HOME}/.zcompdump"
+fi
+if [[ "$ZSH_COMPDUMP"(#qNmh-24) ]]; then
+  compinit -C -d "$ZSH_COMPDUMP"
+else
+  compinit -d "$ZSH_COMPDUMP"
 fi
 
 # Activate rbenv
@@ -115,7 +127,7 @@ eval "$(rbenv init - zsh)"
 
 # Created by `pipx` on 2023-12-22 01:04:13
 export PATH="$PATH:/Users/rhsmith/.local/bin"
-source "${HOME}/.zshrc_nvm"
+
 
 # Shopify Hydrogen alias to local projects
 alias h2='$(npm prefix -s)/node_modules/.bin/shopify hydrogen'
