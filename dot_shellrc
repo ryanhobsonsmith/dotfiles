@@ -154,3 +154,6 @@ ts() {
   selected=$(find ~/algebralabs ~/projects -mindepth 1 -maxdepth 1 -type d 2>/dev/null | fzf --reverse)
   [ -n "$selected" ] && tw "$selected"
 }
+
+# ── Prompt (starship) ────────────────────────────────────────
+command -v starship >/dev/null && eval "$(starship init "${SHELL##*/}")"

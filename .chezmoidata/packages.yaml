@@ -16,6 +16,7 @@ packages:
       - age
       - fnm
       - rbenv
+      - starship
     casks:
       - ghostty
       - font-inconsolata-nerd-font

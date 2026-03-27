@@ -67,6 +67,12 @@ yay -S --needed --noconfirm \
 
 {{ end -}}
 
+# Install starship prompt (not in apt/pacman)
+if ! command -v starship >/dev/null 2>&1; then
+  echo "Installing starship..."
+  curl -sS https://starship.rs/install.sh | sh -s -- -y
+fi
+
 # Install fnm (not in apt/pacman)
 if ! command -v fnm >/dev/null 2>&1; then
   echo "Installing fnm..."
