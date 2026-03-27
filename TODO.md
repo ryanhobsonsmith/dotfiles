@@ -1,9 +1,5 @@
 # TODO
 
-## bugs
-
-When pressing cmd+# (in non tmux), we are entering vim mode?
-
 ## tweaks
 
 - toggle between light and dark themes

@@ -22,6 +22,12 @@ bindkey '^R' history-incremental-search-backward
 bindkey '^[[H' beginning-of-line
 bindkey '^[[F' end-of-line
 
+# Swallow Alt+N sequences so Ghostty's cmd+N (which sends \x1bN for tmux)
+# doesn't trigger vi normal mode when tmux is not running
+for k in 0 1 2 3 4 5 6 7 8 9; do
+  bindkey -s "\e$k" ''
+done
+
 # Cursor shape: beam for insert, block for normal (works in tmux via passthrough)
 # Starship handles the symbol change (❯/❮) and color; we handle cursor shape
 _set_cursor() {
