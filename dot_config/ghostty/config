@@ -2,7 +2,7 @@ keybind = cmd+shift+r=prompt_tab_title
 font-family = "Inconsolata Nerd Font Mono Bold"
 font-size = 16
 
-theme = Catppuccin Mocha
+theme = TokyoNight Night
 
 window-save-state = always
 link-url = true
