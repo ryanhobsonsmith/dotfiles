@@ -7,6 +7,18 @@ theme = TokyoNight Night
 window-save-state = always
 link-url = true
 
+# Unbind Ghostty's default cmd+N tab switching (uses digit_N internally)
+keybind = super+digit_0=unbind
+keybind = super+digit_1=unbind
+keybind = super+digit_2=unbind
+keybind = super+digit_3=unbind
+keybind = super+digit_4=unbind
+keybind = super+digit_5=unbind
+keybind = super+digit_6=unbind
+keybind = super+digit_7=unbind
+keybind = super+digit_8=unbind
+keybind = super+digit_9=unbind
+
 # Cmd+N switches tmux windows (sends Alt+N escape sequence that tmux already binds)
 keybind = cmd+0=text:\x1b0
 keybind = cmd+1=text:\x1b1
@@ -19,14 +31,14 @@ keybind = cmd+7=text:\x1b7
 keybind = cmd+8=text:\x1b8
 keybind = cmd+9=text:\x1b9
 
-# Cmd+Shift+N switches Ghostty tabs
-keybind = cmd+shift+0=goto_tab:10
-keybind = cmd+shift+1=goto_tab:1
-keybind = cmd+shift+2=goto_tab:2
-keybind = cmd+shift+3=goto_tab:3
-keybind = cmd+shift+4=goto_tab:4
-keybind = cmd+shift+5=goto_tab:5
-keybind = cmd+shift+6=goto_tab:6
-keybind = cmd+shift+7=goto_tab:7
-keybind = cmd+shift+8=goto_tab:8
-keybind = cmd+shift+9=goto_tab:9
+# Cmd+Ctrl+N switches Ghostty tabs (caps lock remapped to ctrl makes this ergonomic)
+keybind = cmd+ctrl+0=goto_tab:10
+keybind = cmd+ctrl+1=goto_tab:1
+keybind = cmd+ctrl+2=goto_tab:2
+keybind = cmd+ctrl+3=goto_tab:3
+keybind = cmd+ctrl+4=goto_tab:4
+keybind = cmd+ctrl+5=goto_tab:5
+keybind = cmd+ctrl+6=goto_tab:6
+keybind = cmd+ctrl+7=goto_tab:7
+keybind = cmd+ctrl+8=goto_tab:8
+keybind = cmd+ctrl+9=goto_tab:9
