@@ -18,10 +18,14 @@ apply:
 build:
     docker build -t {{image}} .
 
+# Rebuild from scratch (no cache)
+rebuild:
+    docker build --no-cache -t {{image}} .
+
 # Run tests in a clean container
 test: build
     docker run --rm {{image}}
 
 # Launch an interactive shell in a clean container
 shell: build
-    docker run --rm -it {{image}} /bin/bash
+    docker run --rm -it {{image}} /bin/zsh
