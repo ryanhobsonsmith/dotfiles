@@ -5,7 +5,7 @@
 export LANG=en_US.UTF-8
 export CLICOLOR=1
 export LSCOLORS=ExFxCxDxBxegedabagacad
-export EDITOR='vim'
+export EDITOR='nvim'
 export DO_NOT_TRACK=1
 export CDK_DISABLE_CLI_TELEMETRY=true
 export NODE_OPTIONS="--max-old-space-size=8192"
