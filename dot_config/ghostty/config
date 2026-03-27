@@ -1,5 +1,5 @@
 keybind = cmd+shift+r=prompt_tab_title
-font-family = "Inconsolata Nerd Font Mono Bold"
+font-family = Hack
 font-size = 16
 
 theme = TokyoNight Night
@@ -8,7 +8,6 @@ window-save-state = always
 link-url = true
 
 # Unbind Ghostty's default cmd+N tab switching (uses digit_N internally)
-keybind = super+digit_0=unbind
 keybind = super+digit_1=unbind
 keybind = super+digit_2=unbind
 keybind = super+digit_3=unbind
@@ -20,7 +19,7 @@ keybind = super+digit_8=unbind
 keybind = super+digit_9=unbind
 
 # Cmd+N switches tmux windows (sends Alt+N escape sequence that tmux already binds)
-keybind = cmd+0=text:\x1b0
+keybind = cmd+0=reset_font_size
 keybind = cmd+1=text:\x1b1
 keybind = cmd+2=text:\x1b2
 keybind = cmd+3=text:\x1b3

@@ -19,7 +19,7 @@ packages:
       - starship
     casks:
       - ghostty
-      - font-inconsolata-nerd-font
+      - font-hack
 
   # Arch-only overrides or additions
   arch: []
