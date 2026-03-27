@@ -202,13 +202,11 @@ tw() {
     return
   fi
 
-  tmux new-session -d -s "$session_name" -c "$dir" -n "nvim"
-  tmux send-keys -t "$session_name:nvim" "nvim" Enter
+  tmux new-session -d -s "$session_name" -c "$dir" -n "nvim" "zsh -ic 'nvim; exec zsh'"
 
   tmux new-window -t "$session_name" -c "$dir" -n "shell"
 
-  tmux new-window -t "$session_name" -c "$dir" -n "claude"
-  tmux send-keys -t "$session_name:claude" "claude" Enter
+  tmux new-window -t "$session_name" -c "$dir" -n "claude" "zsh -ic 'claude; exec zsh'"
 
   tmux select-window -t "$session_name:nvim"
   tmux attach-session -t "$session_name"
