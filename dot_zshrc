@@ -1,114 +1,21 @@
 #!/bin/zsh
 
-export LANG=en_US.UTF-8
+# ── Shared config ────────────────────────────────────────────
+source "$HOME/.shellrc"
+
+# ── Zsh-specific settings ───────────────────────────────────
 bindkey -v
 bindkey '^R' history-incremental-search-backward
 bindkey '^[[H' beginning-of-line
 bindkey '^[[F' end-of-line
-export CLICOLOR=1
-export LSCOLORS=ExFxCxDxBxegedabagacad
-export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
-export DO_NOT_TRACK=1
-source $HOME/.cargo/env
-export CDK_DISABLE_CLI_TELEMETRY=true
 
-#setopt auto_cd
-#cdpath=($HOME/chomp $HOME/curbflow)
-
-zstyle ':autocomplete:*' insert-unambiguous yes
-zstyle ':autocomplete:*' widget-style menu-select
-zstyle ':autocomplete:*' min-input 1
-#zstyle ':autocomplete:*' min-delay 0.9
-#source $HOME/.zshlib/zsh-autocomplete/zsh-autocomplete.plugin.zsh
-#source $HOME/.zshlib/zsh-yarn-autocompletions/release/yarn-autocompletions.plugin.zsh
-#source $HOME/.zshlib/zsh-autosuggestions/zsh-autosuggestions.zsh
-
-# Enable and configure pure prompt
+# ── Prompt (pure) ────────────────────────────────────────────
 fpath+=/opt/homebrew/share/zsh/site-functions
 autoload -U promptinit; promptinit
 prompt pure
 
-export EDITOR='vim'
-
-
-function wip () {
-  echo $1
-  if [ $# -eq 0 ]
-  then
-    message="WIP"
-  else
-    message="WIP: $1"
-  fi 
-
-  echo $message
-  cd "$(git rev-parse --show-toplevel)"; git status; git add --all .; git commit -m "$message";
-  cd -
-}
-
-# fnm (fast node manager)
-eval "$(fnm env --use-on-cd --shell zsh --version-file-strategy=recursive)"
-
-eval "$(direnv hook zsh)"
-
-#alias vim='nvim'
-alias ccmd="~/lib/claude-cmd.sh"
-alias pn='pnpm'
-alias pbpon='/Users/rhsmith/itxchh-ddcctl/bin/release/ddcctl -d 1 -pbp 36'
-alias pbpoff='/Users/rhsmith/itxchh-ddcctl/bin/release/ddcctl -d 1 -pbp 0'
-alias pbpdp='/Users/rhsmith/itxchh-ddcctl/bin/release/ddcctl -d 1 -pbp-screen 15'
-alias pbphdmi='/Users/rhsmith/itxchh-ddcctl/bin/release/ddcctl -d 1 -pbp-screen 17'
-alias sipusb='/Users/rhsmith/itxchh-ddcctl/bin/release/ddcctl -d 1 -i 27'
-alias siphdmi='/Users/rhsmith/itxchh-ddcctl/bin/release/ddcctl -d 1 -i 17'
-alias sipdp='/Users/rhsmith/itxchh-ddcctl/bin/release/ddcctl -d 1 -i 15'
-alias erc='vim ~/.zshrc'
-alias rrc='exec zsh'
-alias k='kubectl'
-alias kga='kubectl get -A'
-alias kk='kubectl kustomize'
-alias kak='kubectl apply -k'
-alias hpr="hub pull-request"
-alias bwl='export BW_SESSION=$(bw login $email --raw)'
-alias bwu='export BW_SESSION=$(bw unlock --raw)'
-alias cmpush='bash -c "cd $(chezmoi source-path) && git add . && git commit -m \"cmpush\" && git push"'
-alias pa='eval $(poetry env activate)'
-alias epp='export PYTHONPATH=$(pwd)'
-alias prune-git='git branch --merged main | grep -vE "(^\*|main|master|$(git symbolic-ref --short HEAD))" | xargs -n 1 git branch -d'
-alias sdi="set-display-inputs"
-alias mm1="set-display-inputs hdmi2 hdmi2"
-alias mm1dp="set-display-inputs hdmi2 dp"
-alias mdpdp="set-display-inputs dp dp"
-alias mlx="set-display-inputs dp hdmi1"
-
-#chezmoi aliases
-alias cm="chezmoi"
-alias cma="chezmoi apply"
-alias cme="chezmoi edit"
-alias cmea="chezmoi edit --apply"
-alias cmcd="chezmoi cd"
-alias cmd="chezmoi diff"
-alias cmg="chezmoi git"
-
-test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh" || true
-
-
-# Added by serverless binary installer
-export PATH="$HOME/.serverless/bin:$PATH"
-
-# Add GOPATH
-export GOPATH="$HOME/go"
-export PATH="$GOPATH/bin:$PATH"
-
-# Set Java Version
-export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"
-export ANDROID_HOME="/Users/rhsmith/Library/Android/sdk"
-
-# Setup postgresql tool
-export PATH="/opt/homebrew/opt/postgresql@15/bin:$PATH"
-
-
-# Homebrew Shell Completions (cached — regenerates once per day)
-if type brew &>/dev/null
-then
+# ── Completions (cached — regenerates once per day) ──────────
+if type brew &>/dev/null; then
   FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
 fi
 autoload -Uz compinit
@@ -121,93 +28,15 @@ else
   compinit -d "$ZSH_COMPDUMP"
 fi
 
-# Activate rbenv
+# ── Tool integrations (zsh-specific) ────────────────────────
+eval "$(fnm env --use-on-cd --shell zsh --version-file-strategy=recursive)"
+eval "$(direnv hook zsh)"
 eval "$(rbenv init - zsh)"
-
-
-# Created by `pipx` on 2023-12-22 01:04:13
-export PATH="$PATH:/Users/rhsmith/.local/bin"
-
-
-# Shopify Hydrogen alias to local projects
-alias h2='$(npm prefix -s)/node_modules/.bin/shopify hydrogen'
-export KUBECONFIG=$HOME/.kube/config:$HOME/smack/infra/smack-demo-cluster.json
-
-# bun completions
-[ -s "/Users/rhsmith/.bun/_bun" ] && source "/Users/rhsmith/.bun/_bun"
-
-# bun
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
 eval "$(uv generate-shell-completion zsh)"
 eval "$(uvx --generate-shell-completion zsh)"
 
-export PATH="$HOME/.npm-global/bin:$PATH"
-export NODE_OPTIONS="--max-old-space-size=8192"
+# ── Bun completions ─────────────────────────────────────────
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
-# pnpm
-export PNPM_HOME="/Users/rhsmith/Library/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
-# pnpm end
-#
-
-# Force re-auth of aws profile
-aws_sso_auth() {
-  local profile="default"
-
-  for arg in "$@"; do
-    case $arg in
-      --profile=*)
-        profile="${arg#*=}"
-        ;;
-      *)
-        profile="$arg"
-        ;;
-    esac
-  done
-
-  echo "🔐 Forcing AWS SSO re-auth for profile: $profile"
-
-  aws sso logout --profile "$profile" >/dev/null 2>&1 || true
-  rm -f ~/.aws/sso/cache/*.json 2>/dev/null || true
-
-  aws sso login --profile "$profile"
-}
-
-# Reauth al accounts
-aws_al_auth() {
-  aws_sso_auth --profile=al-test;
-  aws sso login --profile=al-prod
-}
-
-# Added by Antigravity
-export PATH="/Users/rhsmith/.antigravity/antigravity/bin:$PATH"
-
-# opencode
-export PATH=/Users/rhsmith/.opencode/bin:$PATH
-
-# Create a tmux session for a worktree/project directory
-# Usage: tw [path] — defaults to current directory
-tw() {
-  local dir="${1:-.}"
-  dir="$(cd "$dir" && pwd)" || { echo "Invalid directory: $1"; return 1; }
-
-  local session_name="$(basename "$dir")"
-
-  if tmux has-session -t "$session_name" 2>/dev/null; then
-    tmux attach-session -t "$session_name"
-    return
-  fi
-
-  tmux new-session -d -s "$session_name" -c "$dir" -n "nvim" "zsh -ic 'nvim; exec zsh'"
-
-  tmux new-window -t "$session_name" -c "$dir" -n "shell"
-
-  tmux new-window -t "$session_name" -c "$dir" -n "claude" "zsh -ic 'claude; exec zsh'"
-
-  tmux select-window -t "$session_name:nvim"
-  tmux attach-session -t "$session_name"
-}
+# ── iterm2 integration (legacy) ─────────────────────────────
+test -e "$HOME/.iterm2_shell_integration.zsh" && source "$HOME/.iterm2_shell_integration.zsh" || true

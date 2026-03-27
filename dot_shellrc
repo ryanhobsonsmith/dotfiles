@@ -1,0 +1,156 @@
+# Shared shell config — sourced by both .zshrc and .bashrc
+# Shell-specific settings go in their respective files.
+
+# ── Environment ──────────────────────────────────────────────
+export LANG=en_US.UTF-8
+export CLICOLOR=1
+export LSCOLORS=ExFxCxDxBxegedabagacad
+export EDITOR='vim'
+export DO_NOT_TRACK=1
+export CDK_DISABLE_CLI_TELEMETRY=true
+export NODE_OPTIONS="--max-old-space-size=8192"
+
+# ── PATH ─────────────────────────────────────────────────────
+export GOPATH="$HOME/go"
+export BUN_INSTALL="$HOME/.bun"
+export PNPM_HOME="$HOME/Library/pnpm"
+
+path_prepend() { case ":$PATH:" in *":$1:"*) ;; *) export PATH="$1:$PATH" ;; esac; }
+
+path_prepend "$HOME/.local/bin"
+path_prepend "$HOME/.npm-global/bin"
+path_prepend "$HOME/.serverless/bin"
+path_prepend "$HOME/.antigravity/antigravity/bin"
+path_prepend "$HOME/.opencode/bin"
+path_prepend "$GOPATH/bin"
+path_prepend "$BUN_INSTALL/bin"
+path_prepend "/opt/homebrew/opt/openjdk/bin"
+path_prepend "/opt/homebrew/opt/openjdk@11/bin"
+path_prepend "/opt/homebrew/opt/postgresql@15/bin"
+
+case ":$PATH:" in *":$PNPM_HOME:"*) ;; *) export PATH="$PNPM_HOME:$PATH" ;; esac
+
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+export KUBECONFIG="$HOME/.kube/config:$HOME/smack/infra/smack-demo-cluster.json"
+
+# Cargo
+[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+
+# ── Aliases ──────────────────────────────────────────────────
+alias pn='pnpm'
+alias erc='vim ~/.zshrc'
+alias rrc='exec zsh'
+alias k='kubectl'
+alias kga='kubectl get -A'
+alias kk='kubectl kustomize'
+alias kak='kubectl apply -k'
+alias hpr="hub pull-request"
+alias bwl='export BW_SESSION=$(bw login $email --raw)'
+alias bwu='export BW_SESSION=$(bw unlock --raw)'
+alias cmpush='bash -c "cd $(chezmoi source-path) && git add . && git commit -m \"cmpush\" && git push"'
+alias pa='eval $(poetry env activate)'
+alias epp='export PYTHONPATH=$(pwd)'
+alias prune-git='git branch --merged main | grep -vE "(^\*|main|master|$(git symbolic-ref --short HEAD))" | xargs -n 1 git branch -d'
+alias h2='$(npm prefix -s)/node_modules/.bin/shopify hydrogen'
+
+# chezmoi aliases
+alias cm="chezmoi"
+alias cma="chezmoi apply"
+alias cme="chezmoi edit"
+alias cmea="chezmoi edit --apply"
+alias cmcd="chezmoi cd"
+alias cmd="chezmoi diff"
+alias cmg="chezmoi git"
+
+# ── Functions ────────────────────────────────────────────────
+wip() {
+  if [ $# -eq 0 ]; then
+    message="WIP"
+  else
+    message="WIP: $1"
+  fi
+  echo "$message"
+  cd "$(git rev-parse --show-toplevel)" && git status && git add --all . && git commit -m "$message"
+  cd -
+}
+
+# Force re-auth of aws profile
+aws_sso_auth() {
+  local profile="default"
+  for arg in "$@"; do
+    case $arg in
+      --profile=*) profile="${arg#*=}" ;;
+      *) profile="$arg" ;;
+    esac
+  done
+  echo "Forcing AWS SSO re-auth for profile: $profile"
+  aws sso logout --profile "$profile" >/dev/null 2>&1 || true
+  rm -f ~/.aws/sso/cache/*.json 2>/dev/null || true
+  aws sso login --profile "$profile"
+}
+
+aws_al_auth() {
+  aws_sso_auth --profile=al-test
+  aws sso login --profile=al-prod
+}
+
+# ── Tmux session management ─────────────────────────────────
+_tw_layout_dev() {
+  local session_name="$1" dir="$2"
+  local sh="$(basename "$SHELL")"
+  tmux new-session -d -s "$session_name" -c "$dir" -n "nvim" "$sh -ic 'nvim; exec $sh'"
+  tmux new-window -t "$session_name" -c "$dir" -n "shell"
+  tmux new-window -t "$session_name" -c "$dir" -n "claude" "$sh -ic 'claude; exec $sh'"
+  tmux select-window -t "$session_name:nvim"
+}
+
+_tw_layout_default() {
+  local session_name="$1" dir="$2"
+  tmux new-session -d -s "$session_name" -c "$dir"
+}
+
+tw() {
+  local dir="" layout=""
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --layout) layout="$2"; shift 2 ;;
+      *) dir="$1"; shift ;;
+    esac
+  done
+  dir="${dir:-.}"
+  dir="$(cd "$dir" && pwd)" || { echo "Invalid directory: $dir"; return 1; }
+  local session_name="$(basename "$dir")"
+
+  if tmux has-session -t "$session_name" 2>/dev/null; then
+    if [ -n "$TMUX" ]; then
+      tmux switch-client -t "$session_name"
+    else
+      tmux attach-session -t "$session_name"
+    fi
+    return
+  fi
+
+  if [ -z "$layout" ]; then
+    case "$dir" in
+      */algebralabs/*) layout="dev" ;;
+      *) layout="default" ;;
+    esac
+  fi
+
+  case "$layout" in
+    dev) _tw_layout_dev "$session_name" "$dir" ;;
+    *) _tw_layout_default "$session_name" "$dir" ;;
+  esac
+
+  if [ -n "$TMUX" ]; then
+    tmux switch-client -t "$session_name"
+  else
+    tmux attach-session -t "$session_name"
+  fi
+}
+
+ts() {
+  local selected
+  selected=$(find ~/algebralabs ~/projects -mindepth 1 -maxdepth 1 -type d 2>/dev/null | fzf --reverse)
+  [ -n "$selected" ] && tw "$selected"
+}

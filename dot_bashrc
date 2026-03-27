@@ -1,4 +1,9 @@
 # Bash Setup
 
-# Shopify Hydrogen alias to local projects
-alias h2='$(npm prefix -s)/node_modules/.bin/shopify hydrogen'
+# ── Shared config ────────────────────────────────────────────
+source "$HOME/.shellrc"
+
+# ── Tool integrations (bash-specific) ────────────────────────
+command -v fnm >/dev/null 2>&1 && eval "$(fnm env --use-on-cd --shell bash --version-file-strategy=recursive)"
+command -v direnv >/dev/null 2>&1 && eval "$(direnv hook bash)"
+command -v rbenv >/dev/null 2>&1 && eval "$(rbenv init - bash)"

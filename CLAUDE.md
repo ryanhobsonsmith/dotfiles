@@ -46,10 +46,20 @@ chezmoi doctor                # Check setup health
 | `create_` | Only create if file doesn't exist |
 | `modify_` | Modify existing file |
 
+## Shell Config Structure
+
+Shell configuration is split into shared and shell-specific files:
+
+- **`.shellrc`** — shared config sourced by both `.zshrc` and `.bashrc` (env vars, PATH, aliases, functions like `tw`/`ts`)
+- **`.zshrc`** — zsh-specific: keybindings, prompt (pure), completions (cached compinit), zsh tool hooks
+- **`.bashrc`** — bash-specific: bash tool hooks
+
+When adding new config, put it in `.shellrc` if it works in both shells. Only use `.zshrc`/`.bashrc` for shell-specific features (completions, prompts, keybindings, `--shell zsh`/`--shell bash` flags).
+
 ## Conventions
 
 - Test changes with `chezmoi diff` or `chezmoi apply -n` before applying
 - Use templates (`.tmpl`) when config varies by machine
 - Use `run_onchange_` scripts for installing packages or running setup tasks
 - Keep secrets encrypted with age — never commit plaintext secrets
-- Prefer sourcing modular files from `.zshrc` over one monolithic config
+- Put shared shell config in `.shellrc`, shell-specific config in `.zshrc`/`.bashrc`

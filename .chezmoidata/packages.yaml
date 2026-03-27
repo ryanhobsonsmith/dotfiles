@@ -1,0 +1,27 @@
+packages:
+  # Packages with the same name across all platforms
+  common:
+    - curl
+    - direnv
+    - fzf
+    - git
+    - just
+    - neovim
+    - tmux
+    - zsh
+
+  # macOS-only (via Homebrew)
+  darwin:
+    brews:
+      - age
+      - fnm
+      - rbenv
+    casks:
+      - ghostty
+      - font-inconsolata-nerd-font
+
+  # Arch-only overrides or additions
+  arch: []
+
+  # Debian/Ubuntu-only overrides or additions
+  debian: []

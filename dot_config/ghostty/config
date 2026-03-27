@@ -6,3 +6,27 @@ theme = TokyoNight Night
 
 window-save-state = always
 link-url = true
+
+# Cmd+N switches tmux windows (sends Alt+N escape sequence that tmux already binds)
+keybind = cmd+0=text:\x1b0
+keybind = cmd+1=text:\x1b1
+keybind = cmd+2=text:\x1b2
+keybind = cmd+3=text:\x1b3
+keybind = cmd+4=text:\x1b4
+keybind = cmd+5=text:\x1b5
+keybind = cmd+6=text:\x1b6
+keybind = cmd+7=text:\x1b7
+keybind = cmd+8=text:\x1b8
+keybind = cmd+9=text:\x1b9
+
+# Cmd+Shift+N switches Ghostty tabs
+keybind = cmd+shift+0=goto_tab:10
+keybind = cmd+shift+1=goto_tab:1
+keybind = cmd+shift+2=goto_tab:2
+keybind = cmd+shift+3=goto_tab:3
+keybind = cmd+shift+4=goto_tab:4
+keybind = cmd+shift+5=goto_tab:5
+keybind = cmd+shift+6=goto_tab:6
+keybind = cmd+shift+7=goto_tab:7
+keybind = cmd+shift+8=goto_tab:8
+keybind = cmd+shift+9=goto_tab:9
