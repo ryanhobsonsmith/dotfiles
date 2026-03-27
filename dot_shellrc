@@ -95,52 +95,18 @@ aws_al_auth() {
 }
 
 # ── Tmux session management ─────────────────────────────────
-_tw_layout_dev() {
-  local session_name="$1" dir="$2"
-  local sh="$(basename "$SHELL")"
-  tmux new-session -d -s "$session_name" -c "$dir" -n "nvim" "$sh -ic 'nvim; exec $sh'"
-  tmux new-window -t "$session_name" -c "$dir" -n "shell"
-  tmux new-window -t "$session_name" -c "$dir" -n "claude" "$sh -ic 'claude; exec $sh'"
-  tmux select-window -t "$session_name:nvim"
-}
-
-_tw_layout_default() {
-  local session_name="$1" dir="$2"
-  tmux new-session -d -s "$session_name" -c "$dir"
-}
-
-tw() {
-  local dir="" layout=""
-  while [ $# -gt 0 ]; do
-    case "$1" in
-      --layout) layout="$2"; shift 2 ;;
-      *) dir="$1"; shift ;;
-    esac
-  done
-  dir="${dir:-.}"
+cts() {
+  local dir="${1:-.}"
   dir="$(cd "$dir" && pwd)" || { echo "Invalid directory: $dir"; return 1; }
   local session_name="$(basename "$dir")"
+  local sh="$(basename "$SHELL")"
 
-  if tmux has-session -t "$session_name" 2>/dev/null; then
-    if [ -n "$TMUX" ]; then
-      tmux switch-client -t "$session_name"
-    else
-      tmux attach-session -t "$session_name"
-    fi
-    return
+  if ! tmux has-session -t "$session_name" 2>/dev/null; then
+    tmux new-session -d -s "$session_name" -c "$dir" -n "nvim" "$sh -ic 'nvim; exec $sh'"
+    tmux new-window -t "$session_name" -c "$dir" -n "zsh"
+    tmux new-window -t "$session_name" -c "$dir" -n "claude" "$sh -ic 'claude; exec $sh'"
+    tmux select-window -t "$session_name:nvim"
   fi
-
-  if [ -z "$layout" ]; then
-    case "$dir" in
-      */algebralabs/*) layout="dev" ;;
-      *) layout="default" ;;
-    esac
-  fi
-
-  case "$layout" in
-    dev) _tw_layout_dev "$session_name" "$dir" ;;
-    *) _tw_layout_default "$session_name" "$dir" ;;
-  esac
 
   if [ -n "$TMUX" ]; then
     tmux switch-client -t "$session_name"
@@ -152,7 +118,7 @@ tw() {
 ts() {
   local selected
   selected=$(find ~/algebralabs ~/projects -mindepth 1 -maxdepth 1 -type d 2>/dev/null | fzf --reverse)
-  [ -n "$selected" ] && tw "$selected"
+  [ -n "$selected" ] && cts "$selected"
 }
 
 # ── Prompt (starship) ────────────────────────────────────────
