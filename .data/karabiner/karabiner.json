@@ -1,45 +1,68 @@
 {
-    "description": "Caps Lock → Ctrl (held) / Escape (tapped)",
-    "manipulators": [
-        {
-            "from": {
-                "key_code": "caps_lock",
-                "modifiers": { "optional": ["any"] }
-            },
-            "to": [{ "key_code": "left_control" }],
-            "to_if_alone": [{ "key_code": "escape" }],
-            "type": "basic"
-        }
-    ],
+    "global": {
+        "show_in_menu_bar": true
+    },
     "profiles": [
         {
+            "name": "Default profile",
+            "selected": true,
             "complex_modifications": {
                 "rules": [
                     {
                         "description": "Caps Lock → Ctrl (held) / Escape (tapped)",
                         "manipulators": [
                             {
+                                "type": "basic",
                                 "from": {
                                     "key_code": "caps_lock",
                                     "modifiers": { "optional": ["any"] }
                                 },
                                 "to": [{ "key_code": "left_control" }],
-                                "to_if_alone": [{ "key_code": "escape" }],
-                                "type": "basic"
+                                "to_if_alone": [{ "key_code": "escape" }]
                             }
-                        ],
-                        "profiles": [
+                        ]
+                    },
+                    {
+                        "description": "Cmd+Shift+Ctrl+T → Ghostty",
+                        "manipulators": [
                             {
-                                "name": "Default profile",
-                                "selected": true,
-                                "virtual_hid_keyboard": { "keyboard_type_v2": "ansi" }
+                                "type": "basic",
+                                "from": {
+                                    "key_code": "t",
+                                    "modifiers": { "mandatory": ["command", "shift", "control"] }
+                                },
+                                "to": [{ "shell_command": "open -a 'Ghostty'" }]
+                            }
+                        ]
+                    },
+                    {
+                        "description": "Cmd+Shift+Ctrl+B → Chrome (personal)",
+                        "manipulators": [
+                            {
+                                "type": "basic",
+                                "from": {
+                                    "key_code": "b",
+                                    "modifiers": { "mandatory": ["command", "shift", "control"] }
+                                },
+                                "to": [{ "shell_command": "/Users/rhsmith/.local/share/chezmoi/.data/karabiner/chrome-profile.sh 'Ryan (Personal)'" }]
+                            }
+                        ]
+                    },
+                    {
+                        "description": "Cmd+Shift+Ctrl+W → Chrome (work)",
+                        "manipulators": [
+                            {
+                                "type": "basic",
+                                "from": {
+                                    "key_code": "w",
+                                    "modifiers": { "mandatory": ["command", "shift", "control"] }
+                                },
+                                "to": [{ "shell_command": "/Users/rhsmith/.local/share/chezmoi/.data/karabiner/chrome-profile.sh 'Ryan (algebralabs.ai)'" }]
                             }
                         ]
                     }
                 ]
             },
-            "name": "Default profile",
-            "selected": true,
             "virtual_hid_keyboard": { "keyboard_type_v2": "ansi" }
         }
     ]
