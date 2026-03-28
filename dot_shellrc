@@ -121,5 +121,64 @@ ts() {
   [ -n "$selected" ] && cts "$selected"
 }
 
+# ── Algebra Labs worktree management ─────────────────────────
+AL_REPO="$HOME/algebralabs/algebra-labs"
+
+alwt() {
+  # If no branch name given, detect from current directory
+  if [ $# -eq 0 ] || { [ $# -eq 1 ] && [ "$1" = "." ]; }; then
+    local git_root
+    git_root="$(git rev-parse --show-toplevel 2>/dev/null)" || { echo "Not in a git repo"; return 1; }
+    cts "$git_root"
+    return
+  fi
+  # Parse branch name (last non-flag argument) for cts
+  local branch_name=""
+  for arg in "$@"; do
+    case "$arg" in -b|-n|--neon-parent-branch) ;; *) branch_name="$arg" ;; esac
+  done
+  local worktree_dir="$(dirname "$AL_REPO")/$branch_name"
+  if [ ! -d "$worktree_dir" ]; then
+    (cd "$AL_REPO" && bash create-worktree.sh "$@") || return 1
+  fi
+  cts "$worktree_dir"
+}
+
+alwt-stop() {
+  local force="" worktree_dir=""
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --force|-f) force="--force"; shift ;;
+      *) worktree_dir="$1"; shift ;;
+    esac
+  done
+  worktree_dir="${worktree_dir:-$(tmux display-message -p '#{session_path}' 2>/dev/null)}"
+  if [ -z "$worktree_dir" ] || [ "$worktree_dir" = "$AL_REPO" ]; then
+    echo "Usage: alwt-stop [--force] [worktree-dir]  (or run from within a worktree tmux session)"
+    return 1
+  fi
+  local session_name="$(basename "$worktree_dir")"
+  if ! tmux has-session -t "$session_name" 2>/dev/null; then
+    echo "No tmux session '$session_name' found, running cleanup only"
+    (cd "$AL_REPO" && bash cleanup-worktree.sh $force "$worktree_dir")
+    return
+  fi
+  # Kill all existing windows (stops dev servers, etc.)
+  local windows
+  windows=$(tmux list-windows -t "$session_name" -F '#{window_id}')
+  for w in $windows; do
+    tmux kill-window -t "$w" 2>/dev/null
+  done
+  # Open a cleanup window in the main repo and run the cleanup script
+  tmux new-window -t "$session_name" -n "cleanup" -c "$AL_REPO" \
+    "bash cleanup-worktree.sh $force '$worktree_dir'; echo; echo 'Press enter to close session...'; read; tmux switch-client -l 2>/dev/null; tmux kill-session -t '$session_name'"
+  tmux select-window -t "$session_name:cleanup"
+  if [ -n "$TMUX" ]; then
+    tmux switch-client -t "$session_name"
+  else
+    tmux attach-session -t "$session_name"
+  fi
+}
+
 # ── Prompt (starship) ────────────────────────────────────────
 command -v starship >/dev/null && eval "$(starship init "${SHELL##*/}")"

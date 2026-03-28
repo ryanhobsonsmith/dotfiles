@@ -1,0 +1,72 @@
+SetEnv TERM=xterm-256color
+Host rhs-somo
+  HostName rhs-somo
+
+Host 192.168.1.14
+  HostName 192.168.1.14
+  User rhsmith
+
+Host ubuntu-ai
+  HostName 192.168.1.26
+  User rhsmith
+  IdentityFile ~/.ssh/id_rsa
+
+Host 192.168.1.12
+  HostName 192.168.1.12
+  User rhsmith
+ 
+Host udev
+  HostName 192.168.1.41
+  User rhsmith
+  IdentityFile ~/.ssh/id_rsa
+
+Host git-codecommit.us-west-2.amazonaws.com
+  User APKA36ODCRMMPAWR7MMG
+  IdentityFile ~/.ssh/id_rsa
+
+Host dev1
+  HostName dev1.home
+  IdentityFile ~/.ssh/id_rsa
+  User rhsmith
+
+Host retained-ppt-gen
+  HostName nginx.retained.co
+  IdentityFile ~/.ssh/retained-default.pem
+
+Host merlin-vpn-connector
+  HostName 10
+  IdentityFile ~/.ssh/merlin-vpn-connector.cer
+  User ubuntu
+
+Host rp4b1
+  HostName 192.168.1.100
+  User rhsmith
+
+Host mdev
+  HostName 192.168.1.25
+  User rhsmith
+
+Host aidev
+  HostName 192.168.1.22
+  User ai
+  IdentityFile ~/.ssh/aidevkey
+  LocalForward 7860 localhost:7860
+ 
+Host vscode-rhs-somo
+  HostName rhs-somo
+
+Host gitlab.com
+  HostName gitlab.com
+  IdentityFile ~/.ssh/id_rhs
+  AddKeysToAgent yes
+
+Host census-dev
+  HostName 100.120.214.6
+  IdentityFile ~/.ssh/id_ed25519
+  User nolan
+
+Host homeapps
+  HostName 192.168.1.5
+  IdentityFile ~/.ssh/id_ed25519
+
+  User rhsmith

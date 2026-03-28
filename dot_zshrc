@@ -66,6 +66,3 @@ command -v uvx >/dev/null && eval "$(uvx --generate-shell-completion zsh)"
 
 # ── Bun completions ─────────────────────────────────────────
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
-
-# ── iterm2 integration (legacy) ─────────────────────────────
-test -e "$HOME/.iterm2_shell_integration.zsh" && source "$HOME/.iterm2_shell_integration.zsh" || true

@@ -1,0 +1,9 @@
+[user]
+	name = Ryan Smith
+	email = ryanhobsonsmith@gmail.com
+[pull]
+	rebase = false
+[push]
+	default = current
+[init]
+	defaultBranch = main

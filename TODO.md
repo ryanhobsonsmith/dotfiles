@@ -2,6 +2,8 @@
 
 ## tweaks
 
+- need to bring claude settings under chezmoi
+- review candidates below and add to chezmoi as needed
 - toggle between light and dark themes
 - nvim config management and setup
 - hotkeys for switching between terminal, vscode, browser (both profiles) and other common apps
@@ -12,6 +14,38 @@
 - fish
 - nushell
 -
+
+## Dotfiles/configs not yet managed by chezmoi
+
+### Tier 1 — Simple files, no secrets, high value
+
+- [x] `~/.gitconfig` (9 lines — name, email, pull, push, init)
+- [x] `~/.gitignore` (1 line — global gitignore)
+- [x] `~/.vimrc` (4 lines — minimal: syntax, filetype, term)
+- [x] `~/.ssh/config` (72 lines — config only, NOT keys)
+- [x] `~/.config/karabiner/karabiner.json` (45 lines — keyboard remapping)
+- [x] `~/.config/direnv/direnvrc`
+- [x] `~/.config/gh/config.yml` (GitHub CLI config)
+- [x] `~/.claude/settings.json` + `~/.claude/keybindings.json` + `~/.claude/hooks/`
+- [x] `~/.actrc` (4 lines — act runner image mappings)
+
+### Tier 2 — Directories or moderate complexity
+
+- [ ] `~/.config/nvim/` (LazyVim setup — `init.lua`, lua/config/, lua/plugins/, `stylua.toml`; skip auto-generated `lazy-lock.json`)
+- [ ] VS Code: `~/Library/Application Support/Code/User/settings.json` + `keybindings.json`
+- [ ] Cursor: `~/Library/Application Support/Cursor/User/settings.json` + `keybindings.json`
+- [ ] `~/.config/htop/htoprc`
+- [ ] `~/.mactop/config.json`
+
+### Probably not worth managing
+
+- `~/.zshrc_nvm` — NVM lazy-load, may be auto-generated
+- `~/.iterm2_shell_integration.zsh` — legacy, no longer using iTerm2
+- `~/.zcompdump` — auto-generated cache
+- Tool-managed dirs: `~/.nvm/`, `~/.cargo/`, `~/.bun/`, `~/.rbenv/`
+- Package caches: `~/.npm/`, `~/.yarn/`, `~/.gradle/`, `~/.m2/`
+- History files: `.zsh_history`, `.bash_history`, `.psql_history`, etc.
+- App internal state: `~/.ollama/`, `~/.cocoapods/`, `~/.android/`, `~/.expo/`
 
 ## larger features
 
