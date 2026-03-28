@@ -13,16 +13,18 @@ Personal dotfiles managed with [chezmoi](https://www.chezmoi.io/).
 | [chezmoi](https://www.chezmoi.io/install/) | `brew install chezmoi` | Dotfile management |
 | [age](https://github.com/FiloSottile/age) | `brew install age` | Encrypted dotfiles |
 | [Ghostty](https://ghostty.org/) | `brew install ghostty` | Terminal emulator |
-| [Inconsolata Nerd Font](https://www.nerdfonts.com/) | `brew install font-inconsolata-nerd-font` | Ghostty, tmux icons |
+| [Hack](https://sourcefoundry.org/hack/) | `brew install font-hack` | Primary font (Ghostty uses built-in Nerd Font fallback for icons) |
 | [tmux](https://github.com/tmux/tmux) | `brew install tmux` | Terminal multiplexer |
 | [git](https://git-scm.com/) | `brew install git` | TPM install, chezmoi |
 | [fzf](https://github.com/junegunn/fzf) | `brew install fzf` | `ts`, tmux-sessionx |
 | [fnm](https://github.com/Schniz/fnm) | `brew install fnm` | Node.js version management |
 | [direnv](https://direnv.net/) | `brew install direnv` | Per-directory env vars |
-| [Neovim](https://neovim.io/) | `brew install neovim` | `tw` dev layout |
-| [Claude Code](https://claude.ai/code) | `npm install -g @anthropic-ai/claude-code` | `tw` dev layout |
+| [Neovim](https://neovim.io/) | `brew install neovim` | `cts` dev layout, default editor |
+| [starship](https://starship.rs/) | `brew install starship` | Shell prompt |
+| [Claude Code](https://claude.ai/code) | `npm install -g @anthropic-ai/claude-code` | `cts` dev layout |
 | [just](https://github.com/casey/just) | `brew install just` | Task runner (justfile) |
 | [docker](https://www.docker.com/) | Docker Desktop | Testing chezmoi config |
+| [Karabiner-Elements](https://karabiner-elements.pqrs.org/) | `brew install karabiner-elements` | Key remapping, app hotkeys |
 
 #### Optional
 
@@ -48,6 +50,16 @@ chezmoi diff    # review what will change
 chezmoi apply   # apply to home directory
 ```
 
+### Post-install: macOS permissions
+
+Karabiner requires manual permission grants in **System Settings > Privacy & Security > Accessibility**:
+
+- `karabiner_grabber` — already prompted on install
+- `karabiner_observer` — already prompted on install
+- `karabiner_console_user_server` — **must be added manually** for `shell_command` rules (app switching hotkeys). Located at `/Library/Application Support/org.pqrs/Karabiner-Elements/bin/karabiner_console_user_server`
+
+Without `karabiner_console_user_server` in Accessibility, the app-switching hotkeys (Chrome profile switching via `osascript`/`System Events`) will silently fail.
+
 ### Day-to-day usage
 
 ```sh
@@ -62,77 +74,119 @@ chezmoi update                 # pull from remote and apply
 
 | File | Description |
 |---|---|
-| `.tmux.conf` | Tmux configuration (prefix `C-a`, vim bindings, Tokyo Night, TPM plugins) |
-| `.config/ghostty/config` | Ghostty terminal config (Tokyo Night, Nerd Font, keybindings) |
+| `.tmux.conf` | Tmux config (prefix `C-a`, vim bindings, Tokyo Night, TPM plugins) |
+| `.config/ghostty/config` | Ghostty terminal config (Tokyo Night, Hack font, keybindings) |
+| `.config/starship.toml` | Starship prompt config (Tokyo Night inspired, minimal) |
+| `.config/karabiner/karabiner.json` | Karabiner key remapping and app hotkeys (symlinked) |
 | `.shellrc` | Shared shell config sourced by both zsh and bash (env, PATH, aliases, functions) |
-| `.zshrc` | Zsh-specific config (keybindings, prompt, completions, zsh tool hooks) |
+| `.zshrc` | Zsh-specific config (vi mode, history, completions, cursor shape, tool hooks) |
 | `.zprofile` | Zsh login profile (Homebrew, pipx PATH) |
 | `.bashrc` | Bash-specific config (bash tool hooks) |
+| `.gitconfig` | Git configuration |
+| `.gitignore` | Global gitignore |
+| `.ssh/config` | SSH config (template) |
+| `.vimrc` | Minimal vim config |
+| `.actrc` | Act runner image mappings |
+| `.config/direnv/direnvrc` | Direnv config |
+| `.config/gh/config.yml` | GitHub CLI config |
+| `.claude/settings.json` | Claude Code settings (symlinked) |
+| `.claude/keybindings.json` | Claude Code keybindings (symlinked) |
+| `.claude/hooks/block-home-dir.sh` | Claude Code hook (symlinked) |
 
-Shell config is split so that shared settings (env vars, aliases, functions like `tw`/`ts`) live in `.shellrc` and are available in both shells. Shell-specific features (completions, prompts, keybindings) stay in `.zshrc`/`.bashrc`.
+Shell config is split so that shared settings (env vars, aliases, functions like `cts`/`ts`) live in `.shellrc` and are available in both shells. Shell-specific features (completions, prompts, keybindings) stay in `.zshrc`/`.bashrc`.
+
+## Keyboard shortcuts
+
+### Karabiner (global macOS hotkeys)
+
+| Shortcut | Action |
+|---|---|
+| Caps Lock (tap) | Escape |
+| Caps Lock (hold) | Ctrl |
+| Cmd+Shift+Ctrl+T | Focus/launch Ghostty |
+| Cmd+Shift+Ctrl+B | Focus/launch Chrome (Personal profile) |
+| Cmd+Shift+Ctrl+W | Focus/launch Chrome (Work profile) |
+
+### Ghostty keybindings
+
+| Shortcut | Action |
+|---|---|
+| Cmd+N (1-9) | Switch tmux window N |
+| Cmd+Ctrl+N (1-9) | Switch Ghostty tab N |
+| Cmd+0 | Reset font size |
+
+### Tmux keybindings (prefix = Ctrl+A)
+
+| Shortcut | Action |
+|---|---|
+| prefix+v | Open VS Code at session workspace root |
+| prefix+a | Jump to last window |
+| prefix+A | Jump to last session |
+| prefix+Q | Kill session, switch to previous |
+| prefix+x | Kill pane |
+| prefix+X | Kill window |
+| prefix+\| | Split pane horizontal |
+| prefix+- | Split pane vertical |
+| prefix+Enter | Enter copy mode |
+| prefix+r | Reload tmux config |
+| Alt+N (1-9) | Switch window N (no prefix needed) |
+| Alt+h/j/k/l | Switch pane (no prefix needed) |
 
 ## Tmux session management
 
-### `tw` — create/attach project sessions
+### `cts` — create/attach project sessions
 
-`tw` creates a tmux session for a directory with a layout determined by the path:
+`cts` creates a tmux session for a directory with 3 windows (nvim, zsh, claude):
 
 ```sh
-tw ~/algebralabs/my-project   # "dev" layout: nvim + shell + claude
-tw ~/random/thing              # "default" layout: plain session
-tw                             # uses current directory
-tw ~/anything --layout dev     # force a specific layout
+cts ~/projects/my-app   # create session with nvim, zsh, claude windows
+cts                      # uses current directory
 ```
 
 If the session already exists, it attaches (or switches if already inside tmux).
 
-#### Layouts
-
-| Layout | Path pattern | Windows |
-|---|---|---|
-| `dev` | `*/algebralabs/*` | nvim, shell, claude |
-| `default` | everything else | single shell |
-
-To add a new layout, define a `_tw_layout_<name>` function in `.zshrc` and add a case to the path matcher in `tw`.
-
 ### `ts` — fuzzy session picker
 
-`ts` uses fzf to fuzzy-find a project directory and opens it with `tw`:
+`ts` uses fzf to fuzzy-find a project directory and opens it with `cts`:
 
 ```sh
 ts   # scans ~/algebralabs and ~/projects, pick with fzf
 ```
 
-Edit the `dirs` array in the `ts` function to add more search paths.
+### `alwt` — Algebra Labs worktree management
+
+```sh
+alwt -b feature-name       # create git worktree + Neon branch, then open cts session
+alwt feature-name           # use existing worktree, open cts session
+alwt                        # detect worktree from current directory, open cts session
+```
+
+### `alwt-stop` — tear down worktree session
+
+```sh
+alwt-stop                   # tear down current session's worktree
+alwt-stop /path/to/worktree # tear down specific worktree
+alwt-stop --force           # skip confirmation prompts
+```
+
+Kills all windows in the session (stops dev servers), opens a cleanup window to run `cleanup-worktree.sh` (removes git worktree + Neon branch), then kills the session and switches to the previous one.
 
 ## Testing
 
 ### Docker (Linux)
 
-A Dockerfile is provided to validate the chezmoi config in a clean Linux environment. This tests that files are placed correctly, templates render properly, and `run_once_` scripts succeed.
-
 ```sh
-docker build -t dotfiles-test .
-docker run --rm dotfiles-test
+just build    # build test image
+just test     # run verification checks
+just shell    # interactive shell in clean container
+just rebuild  # rebuild from scratch (no cache)
 ```
 
-This won't cover macOS-specific behavior (e.g. Homebrew installs, macOS defaults), but catches most issues with file placement, templates, and script errors.
-
-Scripts that need to behave differently per OS should use platform guards:
-
-```sh
-if [[ "$(uname)" == "Darwin" ]]; then
-    # macOS-specific
-else
-    # Linux / other
-fi
-```
+This won't cover macOS-specific behavior (e.g. Homebrew, Karabiner), but catches issues with file placement, templates, and script errors.
 
 ### macOS testing
 
 Docker can't run macOS. For full macOS validation, consider:
 
-- **[Tart](https://github.com/cirruslabs/tart)** — runs macOS VMs natively on Apple Silicon. Create a clean macOS VM, clone the repo, and run `chezmoi init && chezmoi apply` for a true end-to-end test.
-- **Separate macOS user account** — create a test user on your machine and init chezmoi from your repo there. Quick and free, but not fully isolated.
-
-Tart can also be integrated into CI (e.g. GitHub Actions with a self-hosted Apple Silicon runner) for automated macOS testing if needed.
+- **[Tart](https://github.com/cirruslabs/tart)** — runs macOS VMs natively on Apple Silicon
+- **Separate macOS user account** — create a test user and init chezmoi from your repo
