@@ -47,7 +47,41 @@
 - History files: `.zsh_history`, `.bash_history`, `.psql_history`, etc.
 - App internal state: `~/.ollama/`, `~/.cocoapods/`, `~/.android/`, `~/.expo/`
 
+## Neovim
+
+- Fix markdown files in lazyvim (too many diagnostic errors??)
+
 ## larger features
 
 - need to figure out code-review/diffing in nvim or otherwise
 - need to get nvim tutor or tutorial plan figured out
+
+## Software To Install
+
+- Bruno -> HTTP Testing Library
+- Nushell -> Also good at HTTP Testing
+- lm studio
+- balena etcher
+- freecad
+- claude
+- opencode
+- docker
+- chrome
+- firefox?
+- rectangle pro
+- slack
+- steam
+- vscode
+- vlc
+- xcode
+- tailscale
+- logi options+
+- bittwarden
+- ghostty
+- mimesstream
+- ollama?
+- bambu studio
+
+### TODO: scan this comp and homebrew to identify critical casks/apps/packages I want to be able to manage/install
+
+- Need to have a way split out install lists (minimal vs optional). With some way to select/alter/add eassily
