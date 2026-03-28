@@ -45,6 +45,7 @@ chezmoi doctor                # Check setup health
 | `run_onchange_` | Script that re-runs when its content changes |
 | `create_` | Only create if file doesn't exist |
 | `modify_` | Modify existing file |
+| `symlink_` | Create a symlink (content = target path) |
 
 ## Shell Config Structure
 
@@ -55,6 +56,33 @@ Shell configuration is split into shared and shell-specific files:
 - **`.bashrc`** — bash-specific: bash tool hooks
 
 When adding new config, put it in `.shellrc` if it works in both shells. Only use `.zshrc`/`.bashrc` for shell-specific features (completions, prompts, keybindings, `--shell zsh`/`--shell bash` flags).
+
+## App-Managed Config (Symlinks)
+
+Some config files are edited by their applications (e.g., Claude Code, Karabiner, VS Code). These are managed as **symlinks** so changes stay in sync without needing `chezmoi re-add`.
+
+### How it works
+
+1. The actual config file lives in `.data/` in the source dir (ignored by chezmoi, tracked by git)
+2. A `symlink_<filename>.tmpl` in the chezmoi source creates a symlink from the target location back to `.data/`
+3. The `.tmpl` suffix lets chezmoi resolve `{{ .chezmoi.sourceDir }}` to the correct absolute path — only the symlink target path is templated, not the file contents
+4. When the app edits the file (e.g., `~/.claude/settings.json`), it follows the symlink and writes directly to the source dir
+5. Changes appear in `git status` immediately — no `chezmoi re-add` needed
+
+### Current symlinked files
+
+| Target | Source (actual file) |
+|---|---|
+| `~/.claude/settings.json` | `.data/claude/settings.json` |
+| `~/.claude/keybindings.json` | `.data/claude/keybindings.json` |
+| `~/.claude/hooks/block-home-dir.sh` | `.data/claude/hooks/block-home-dir.sh` |
+| `~/.config/karabiner/karabiner.json` | `.data/karabiner/karabiner.json` |
+
+### When to use symlinks vs copies vs modify templates
+
+- **Symlinks** — for files apps frequently edit and you want the full file tracked (Claude, Karabiner, VS Code settings)
+- **Copies** (default) — for files you control entirely (shell config, gitconfig)
+- **Modify templates** (`modify_` + `setValueAtPath`) — for files where you only want to enforce specific keys while letting the app manage the rest. Uses `fromJson`/`toJson` pipeline to surgically set values without overwriting other keys.
 
 ## Conventions
 
