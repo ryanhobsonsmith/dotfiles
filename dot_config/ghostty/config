@@ -1,43 +1,49 @@
 keybind = cmd+shift+r=prompt_tab_title
 font-family = Hack
-font-size = 16
+font-size = 14
 
 theme = TokyoNight Night
 
 window-save-state = always
 link-url = true
 
-# Unbind Ghostty's default cmd+N tab switching (uses digit_N internally)
-keybind = super+digit_1=unbind
-keybind = super+digit_2=unbind
-keybind = super+digit_3=unbind
-keybind = super+digit_4=unbind
-keybind = super+digit_5=unbind
-keybind = super+digit_6=unbind
-keybind = super+digit_7=unbind
-keybind = super+digit_8=unbind
-keybind = super+digit_9=unbind
+adjust-cell-height = +10%
 
-# Cmd+N switches tmux windows (sends Alt+N escape sequence that tmux already binds)
-keybind = cmd+0=reset_font_size
-keybind = cmd+1=text:\x1b1
-keybind = cmd+2=text:\x1b2
-keybind = cmd+3=text:\x1b3
-keybind = cmd+4=text:\x1b4
-keybind = cmd+5=text:\x1b5
-keybind = cmd+6=text:\x1b6
-keybind = cmd+7=text:\x1b7
-keybind = cmd+8=text:\x1b8
-keybind = cmd+9=text:\x1b9
-
-# Cmd+Ctrl+N switches Ghostty tabs (caps lock remapped to ctrl makes this ergonomic)
-keybind = cmd+ctrl+0=goto_tab:10
-keybind = cmd+ctrl+1=goto_tab:1
-keybind = cmd+ctrl+2=goto_tab:2
-keybind = cmd+ctrl+3=goto_tab:3
-keybind = cmd+ctrl+4=goto_tab:4
-keybind = cmd+ctrl+5=goto_tab:5
-keybind = cmd+ctrl+6=goto_tab:6
-keybind = cmd+ctrl+7=goto_tab:7
-keybind = cmd+ctrl+8=goto_tab:8
-keybind = cmd+ctrl+9=goto_tab:9
+# Custom tab/window switching: remaps Cmd+N to send Alt+N (for tmux window switching),
+# moves Ghostty tab switching to Cmd+Ctrl+N. Disabled to keep default Cmd+N = Ghostty tabs.
+# To re-enable: uncomment all lines below.
+#
+# # Unbind Ghostty's default cmd+N tab switching (uses digit_N internally)
+# keybind = super+digit_1=unbind
+# keybind = super+digit_2=unbind
+# keybind = super+digit_3=unbind
+# keybind = super+digit_4=unbind
+# keybind = super+digit_5=unbind
+# keybind = super+digit_6=unbind
+# keybind = super+digit_7=unbind
+# keybind = super+digit_8=unbind
+# keybind = super+digit_9=unbind
+#
+# # Cmd+N switches tmux windows (sends Alt+N escape sequence that tmux already binds)
+# keybind = cmd+0=reset_font_size
+# keybind = cmd+1=text:\x1b1
+# keybind = cmd+2=text:\x1b2
+# keybind = cmd+3=text:\x1b3
+# keybind = cmd+4=text:\x1b4
+# keybind = cmd+5=text:\x1b5
+# keybind = cmd+6=text:\x1b6
+# keybind = cmd+7=text:\x1b7
+# keybind = cmd+8=text:\x1b8
+# keybind = cmd+9=text:\x1b9
+#
+# # Cmd+Ctrl+N switches Ghostty tabs (caps lock remapped to ctrl makes this ergonomic)
+# keybind = cmd+ctrl+0=goto_tab:10
+# keybind = cmd+ctrl+1=goto_tab:1
+# keybind = cmd+ctrl+2=goto_tab:2
+# keybind = cmd+ctrl+3=goto_tab:3
+# keybind = cmd+ctrl+4=goto_tab:4
+# keybind = cmd+ctrl+5=goto_tab:5
+# keybind = cmd+ctrl+6=goto_tab:6
+# keybind = cmd+ctrl+7=goto_tab:7
+# keybind = cmd+ctrl+8=goto_tab:8
+# keybind = cmd+ctrl+9=goto_tab:9
