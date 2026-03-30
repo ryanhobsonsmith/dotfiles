@@ -3,6 +3,7 @@ packages:
   common:
     - curl
     - direnv
+    - fd
     - fzf
     - git
     - just
