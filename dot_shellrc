@@ -137,7 +137,13 @@ alwt() {
   for arg in "$@"; do
     case "$arg" in -b|-n|--neon-parent-branch) ;; *) branch_name="$arg" ;; esac
   done
-  local worktree_dir="$(dirname "$AL_REPO")/$branch_name"
+  local worktree_dir
+  # Support passing a full path to an existing worktree
+  if [ -d "$branch_name" ]; then
+    worktree_dir="$(cd "$branch_name" && pwd)"
+  else
+    worktree_dir="$(dirname "$AL_REPO")/$branch_name"
+  fi
   if [ ! -d "$worktree_dir" ]; then
     (cd "$AL_REPO" && bash create-worktree.sh "$@") || return 1
   fi
@@ -152,9 +158,25 @@ alwt-stop() {
       *) worktree_dir="$1"; shift ;;
     esac
   done
-  worktree_dir="${worktree_dir:-$(tmux display-message -p '#{session_path}' 2>/dev/null)}"
+  # Resolve worktree: explicit arg > cwd if it's a worktree > active tmux session
+  if [ -z "$worktree_dir" ]; then
+    local git_toplevel
+    git_toplevel="$(git rev-parse --show-toplevel 2>/dev/null)"
+    if [ -n "$git_toplevel" ] && [ "$git_toplevel" != "$AL_REPO" ]; then
+      worktree_dir="$git_toplevel"
+    else
+      worktree_dir="$(tmux display-message -p '#{session_path}' 2>/dev/null)"
+    fi
+  fi
   if [ -z "$worktree_dir" ] || [ "$worktree_dir" = "$AL_REPO" ]; then
     echo "Usage: alwt-stop [--force] [worktree-dir]  (or run from within a worktree tmux session)"
+    return 1
+  fi
+  echo "Will remove worktree: $worktree_dir"
+  printf "Continue? [y/N] "
+  read -r confirm
+  if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
+    echo "Aborted."
     return 1
   fi
   local session_name="$(basename "$worktree_dir")"
@@ -179,6 +201,34 @@ alwt-stop() {
     tmux attach-session -t "$session_name"
   fi
 }
+
+# ── Auto-reload shell config ────────────────────────────────
+# When ~/.shell-auto-reload is touched, all open shells re-source on next prompt.
+# chezmoi apply touches this file automatically via run_onchange script.
+_SHELL_RELOAD_FILE="$HOME/.shell-auto-reload"
+_SHELL_RELOAD_MTIME=""
+_shell_reload_check() {
+  local mtime
+  if [ -f "$_SHELL_RELOAD_FILE" ]; then
+    mtime="$(stat -f %m "$_SHELL_RELOAD_FILE" 2>/dev/null)"
+  else
+    return
+  fi
+  if [ -n "$_SHELL_RELOAD_MTIME" ] && [ "$mtime" != "$_SHELL_RELOAD_MTIME" ]; then
+    _SHELL_RELOAD_MTIME="$mtime"
+    echo "[shellrc] Reloading config..."
+    source "$HOME/.${SHELL##*/}rc"
+    return
+  fi
+  _SHELL_RELOAD_MTIME="$mtime"
+}
+# Register the check for both zsh (precmd) and bash (PROMPT_COMMAND)
+if [ -n "$ZSH_VERSION" ]; then
+  autoload -Uz add-zsh-hook
+  add-zsh-hook precmd _shell_reload_check
+elif [ -n "$BASH_VERSION" ]; then
+  PROMPT_COMMAND="_shell_reload_check${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
+fi
 
 # ── Prompt (starship) ────────────────────────────────────────
 command -v starship >/dev/null && eval "$(starship init "${SHELL##*/}")"
