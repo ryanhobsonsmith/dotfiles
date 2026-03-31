@@ -55,6 +55,10 @@
 
 - need to figure out code-review/diffing in nvim or otherwise
 - need to get nvim tutor or tutorial plan figured out
+- get some kind of ai-autocomplete command going for terminal so I can quickly generate complex bash commands if needed
+- better use bitwarden and chezmoi to manage secrets and api keys somehow. And SSH keys
+- nvim autosave and auto-reload on file changes (e.g. for watching AI changes)
+- figure out right way to request targeted AI insertions in nvim (e.g. <leader>+<key> => prompt for ai to insert code at cursor)
 
 ## Software To Install
 
