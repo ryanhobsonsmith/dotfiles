@@ -129,7 +129,7 @@ Shell config is split so that shared settings (env vars, aliases, functions like
 | prefix+- | Split pane vertical |
 | prefix+Enter | Enter copy mode |
 | prefix+r | Reload tmux config |
-| prefix+b | Toggle status bar right side |
+| prefix+b | Toggle focused mode (hide session list) |
 | prefix+t | Toggle floating terminal popup |
 | Alt+N (1-9) | Switch window N (no prefix needed) |
 | Alt+,/. | Previous/next window (no prefix needed) |
