@@ -33,12 +33,12 @@ for session in $(tmux list-sessions -F '#S'); do
   done
 
   case "$best_state" in
-    working) claude_icon=" #[fg=#fab387]󰚩" ;;
-    waiting) claude_icon=" #[fg=#f38ba8]󰚩" ;;
-    idle)    claude_icon=" #[fg=#6c7086]󰚩" ;;
+    working) claude_icon="#[fg=#fab387]󰚩 " ;;
+    waiting) claude_icon="#[fg=#f38ba8]󰚩 " ;;
+    idle)    claude_icon="#[fg=#6c7086]󰚩 " ;;
   esac
 
-  result="${result}#[fg=${fg},bg=${bar_bg}] ${session}${claude_icon} "
+  result="${result}#[fg=${fg},bg=${bar_bg}] ${claude_icon}#[fg=${fg}]${session} "
 done
 
 printf '%s' "$result"
