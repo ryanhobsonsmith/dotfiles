@@ -92,6 +92,9 @@ chezmoi update                 # pull from remote and apply
 | `.claude/settings.json` | Claude Code settings (symlinked) |
 | `.claude/keybindings.json` | Claude Code keybindings (symlinked) |
 | `.claude/hooks/block-home-dir.sh` | Claude Code hook (symlinked) |
+| `.tmux/scripts/claude-tmux-hook.sh` | Claude Code hook for tmux status integration |
+| `.tmux/scripts/claude-tmux-status.sh` | Reads claude state for tmux window tabs |
+| `.tmux/scripts/session-list.sh` | Renders session bar with claude status icons |
 
 Shell config is split so that shared settings (env vars, aliases, functions like `cts`/`ts`) live in `.shellrc` and are available in both shells. Shell-specific features (completions, prompts, keybindings) stay in `.zshrc`/`.bashrc`.
 
@@ -142,6 +145,16 @@ Shell config is split so that shared settings (env vars, aliases, functions like
 Two-line status bar (Catppuccin Mocha theme):
 - **Top line**: All tmux sessions — active session in lavender, inactive in muted gray
 - **Bottom line**: Windows for the current session, with directory and session module on the right
+
+#### Claude Code status indicators
+
+Window tabs and session names show a color-coded 󰚩 icon reflecting Claude Code activity:
+- **Peach** — Claude is working (thinking, using tools)
+- **Red** — Claude needs attention (permission request, notification)
+- **Grey** — Claude is idle (waiting for your next prompt)
+- **No icon** — No Claude instance in that window/session
+
+Powered by Claude Code hooks that write state to `/tmp/claude-tmux/`. Refresh rate is controlled by `status-interval` (default 15s).
 
 ## Tmux session management
 

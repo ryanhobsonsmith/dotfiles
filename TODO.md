@@ -2,7 +2,9 @@
 
 ## tweaks
 
-- need to bring claude settings under chezmoi
+- ~~need to bring claude settings under chezmoi~~ done (symlinked)
+- tmux claude status: integrate with sessionx session switcher (show claude state per session in preview)
+- tmux claude status: stale state file cleanup (e.g. if claude crashes without firing SessionEnd)
 - review candidates below and add to chezmoi as needed
 - toggle between light and dark themes
 - nvim config management and setup

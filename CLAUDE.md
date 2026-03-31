@@ -92,6 +92,36 @@ Some config files are edited by their applications (e.g., Claude Code, Karabiner
 - `status-format[1]` uses the default tmux window list format (copied from tmux's built-in `status-format[0]`)
 - Hex color codes (`#rrggbb`) inside `#{S:}` session iteration break tmux's format parser — use simple `#[fg=color]` style codes or shell scripts via `#()` for complex styling
 - `session_attached` flag is true for **any** session with a client connected (not just the current one) — avoid using it to highlight the "active" session when multiple clients may be attached
+- `#()` shell expansions inside catppuccin window pills (`@catppuccin_window_text`) cause pill backgrounds to missize — use tmux window options + format conditionals (`#{?#{==:#{@var},...}}`) instead
+
+### Claude Code Status Integration
+
+Claude Code hooks write per-pane state to `/tmp/claude-tmux/` and set tmux window options, providing visual status indicators in both the session bar and window tabs.
+
+**Scripts** (in `dot_tmux/scripts/`, deployed to `~/.tmux/scripts/`):
+- `claude-tmux-hook.sh` — Hook script called by Claude Code on state-change events. Writes state files and sets `@claude_state` window option (aggregated across panes).
+- `claude-tmux-status.sh` — Reads state files for a window (used internally, available for future extensions).
+- `session-list.sh` — Renders the session bar (top line) with per-session claude status icons.
+
+**Hook events and states:**
+
+| Event | State | Icon color |
+|---|---|---|
+| `SessionStart` | `idle` | grey (`#6c7086`) |
+| `UserPromptSubmit` | `working` | peach (`#fab387`) |
+| `PreToolUse` | `working` | peach (`#fab387`) |
+| `Stop` | `idle` | grey (`#6c7086`) |
+| `Notification` | `waiting` | red (`#f38ba8`) |
+| `PermissionRequest` | `waiting` | red (`#f38ba8`) |
+| `SessionEnd` | *(file deleted)* | no icon |
+
+**How it works:**
+1. Hooks in `settings.json` call `~/.tmux/scripts/claude-tmux-hook.sh` on each event
+2. The script writes state to `/tmp/claude-tmux/pane-{TMUX_PANE}.state` and sets `@claude_state` on the tmux window (aggregated worst-state across all panes)
+3. Window tabs use tmux format conditionals on `@claude_state` (no `#()` — avoids pill sizing issues)
+4. Session bar uses `session-list.sh` via `#()` which iterates state files per session
+5. State priority: `waiting` > `working` > `idle` (shows the state needing most attention)
+6. Refresh rate is controlled by `status-interval` (default 15s, configurable in `dot_tmux.conf`)
 
 ## Conventions
 

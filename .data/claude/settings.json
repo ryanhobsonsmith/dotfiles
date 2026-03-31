@@ -10,6 +10,10 @@
           {
             "type": "command",
             "command": "/Users/rhsmith/.superset/hooks/notify.sh"
+          },
+          {
+            "type": "command",
+            "command": "~/.tmux/scripts/claude-tmux-hook.sh"
           }
         ]
       }
@@ -20,6 +24,21 @@
           {
             "type": "command",
             "command": "/Users/rhsmith/.superset/hooks/notify.sh"
+          },
+          {
+            "type": "command",
+            "command": "~/.tmux/scripts/claude-tmux-hook.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.tmux/scripts/claude-tmux-hook.sh"
           }
         ]
       }
@@ -53,6 +72,40 @@
           {
             "type": "command",
             "command": "/Users/rhsmith/.superset/hooks/notify.sh"
+          },
+          {
+            "type": "command",
+            "command": "~/.tmux/scripts/claude-tmux-hook.sh"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.tmux/scripts/claude-tmux-hook.sh"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.tmux/scripts/claude-tmux-hook.sh"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.tmux/scripts/claude-tmux-hook.sh"
           }
         ]
       }
