@@ -74,9 +74,9 @@ chezmoi update                 # pull from remote and apply
 
 | File | Description |
 |---|---|
-| `.tmux.conf` | Tmux config (prefix `C-a`, vim bindings, Tokyo Night, TPM plugins) |
-| `.config/ghostty/config` | Ghostty terminal config (Tokyo Night, Hack font, keybindings) |
-| `.config/starship.toml` | Starship prompt config (Tokyo Night inspired, minimal) |
+| `.tmux.conf` | Tmux config (prefix `C-a`, vim bindings, Catppuccin Mocha, TPM plugins, two-line status bar) |
+| `.config/ghostty/config` | Ghostty terminal config (Hack font, keybindings) |
+| `.config/starship.toml` | Starship prompt config (minimal) |
 | `.config/karabiner/karabiner.json` | Karabiner key remapping and app hotkeys (symlinked) |
 | `.shellrc` | Shared shell config sourced by both zsh and bash (env, PATH, aliases, functions) |
 | `.zshrc` | Zsh-specific config (vi mode, history, completions, cursor shape, tool hooks) |
@@ -129,8 +129,19 @@ Shell config is split so that shared settings (env vars, aliases, functions like
 | prefix+- | Split pane vertical |
 | prefix+Enter | Enter copy mode |
 | prefix+r | Reload tmux config |
+| prefix+b | Toggle status bar right side |
+| prefix+t | Toggle floating terminal popup |
 | Alt+N (1-9) | Switch window N (no prefix needed) |
+| Alt+,/. | Previous/next window (no prefix needed) |
+| Ctrl+,/. | Previous/next window (no prefix needed) |
+| Ctrl+Tab | Next window (no prefix needed) |
 | Alt+h/j/k/l | Switch pane (no prefix needed) |
+
+### Tmux status bar
+
+Two-line status bar (Catppuccin Mocha theme):
+- **Top line**: All tmux sessions — active session in lavender, inactive in muted gray
+- **Bottom line**: Windows for the current session, with directory and session module on the right
 
 ## Tmux session management
 

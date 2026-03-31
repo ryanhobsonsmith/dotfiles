@@ -84,6 +84,15 @@ Some config files are edited by their applications (e.g., Claude Code, Karabiner
 - **Copies** (default) — for files you control entirely (shell config, gitconfig)
 - **Modify templates** (`modify_` + `setValueAtPath`) — for files where you only want to enforce specific keys while letting the app manage the rest. Uses `fromJson`/`toJson` pipeline to surgically set values without overwriting other keys.
 
+## Tmux Config
+
+- **Theme:** Catppuccin Mocha (via TPM plugin)
+- **Two-line status bar:** `status 2` with custom `status-format[0]` (sessions) and `status-format[1]` (windows)
+- Status modules (`status-left`, `status-right`) must be set **after** `run '~/.tmux/plugins/tpm/tpm'` so Catppuccin variables are defined
+- `status-format[1]` uses the default tmux window list format (copied from tmux's built-in `status-format[0]`)
+- Hex color codes (`#rrggbb`) inside `#{S:}` session iteration break tmux's format parser — use simple `#[fg=color]` style codes or shell scripts via `#()` for complex styling
+- `session_attached` flag is true for **any** session with a client connected (not just the current one) — avoid using it to highlight the "active" session when multiple clients may be attached
+
 ## Conventions
 
 - Test changes with `chezmoi diff` or `chezmoi apply -n` before applying
