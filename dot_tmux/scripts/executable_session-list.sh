@@ -11,6 +11,7 @@ current_session=$(tmux display-message -p '#S')
 
 result=""
 for session in $(tmux list-sessions -F '#S'); do
+  [ "$session" = "floating" ] && continue
   if [ "$session" = "$current_session" ]; then
     fg="$active_fg"
   else
@@ -27,18 +28,20 @@ for session in $(tmux list-sessions -F '#S'); do
     state=$(cat "$file" 2>/dev/null)
     case "$state" in
       waiting) best_state="waiting"; break ;;
-      working) [ "$best_state" != "waiting" ] && best_state="working" ;;
+      done)    [ "$best_state" != "waiting" ] && best_state="done" ;;
+      working) [ "$best_state" != "waiting" ] && [ "$best_state" != "done" ] && best_state="working" ;;
       idle)    [ -z "$best_state" ] && best_state="idle" ;;
     esac
   done
 
   case "$best_state" in
     working) claude_icon="#[fg=#fab387]󰚩 " ;;
+    done)    claude_icon="#[fg=#a6e3a1]󰚩 " ;;
     waiting) claude_icon="#[fg=#f38ba8]󰚩 " ;;
     idle)    claude_icon="#[fg=#6c7086]󰚩 " ;;
   esac
 
-  result="${result}#[fg=${fg},bg=${bar_bg}] ${claude_icon}#[fg=${fg}]${session} "
+  result="${result}#[range=session|${session}]#[fg=${fg},bg=${bar_bg}] ${claude_icon}#[fg=${fg}]${session} #[norange]"
 done
 
 printf '%s' "$result"

@@ -16,17 +16,19 @@ STATE_FILE="${STATE_DIR}/pane-${PANE_ID//[^a-zA-Z0-9_%]/_}.state"
 case "$EVENT" in
   UserPromptSubmit)  echo "working" > "$STATE_FILE" ;;
   PreToolUse)        echo "working" > "$STATE_FILE" ;;
-  Stop)              echo "idle" > "$STATE_FILE" ;;
+  Stop)              echo "done" > "$STATE_FILE" ;;
   Notification)      echo "waiting" > "$STATE_FILE" ;;
   PermissionRequest) echo "waiting" > "$STATE_FILE" ;;
   SessionStart)      echo "idle" > "$STATE_FILE" ;;
   SessionEnd)        rm -f "$STATE_FILE" ;;
 esac
 
-# Update tmux window option (used by catppuccin window tabs)
-# Aggregate the worst state across all panes in this window
+# Update tmux window + session options (used by status bar format conditionals)
 if [ "$PANE_ID" != "unknown" ] && command -v tmux >/dev/null 2>&1; then
   WINDOW_ID=$(tmux display-message -t "$PANE_ID" -p '#{window_id}' 2>/dev/null) || true
+  SESSION_NAME=$(tmux display-message -t "$PANE_ID" -p '#{session_name}' 2>/dev/null) || true
+
+  # Aggregate worst state across all panes in this window
   if [ -n "$WINDOW_ID" ]; then
     BEST=""
     for pane in $(tmux list-panes -t "$WINDOW_ID" -F '#{pane_id}' 2>/dev/null); do
@@ -35,11 +37,29 @@ if [ "$PANE_ID" != "unknown" ] && command -v tmux >/dev/null 2>&1; then
       STATE=$(cat "$FILE" 2>/dev/null)
       case "$STATE" in
         waiting) BEST="waiting"; break ;;
-        working) [ "$BEST" != "waiting" ] && BEST="working" ;;
+        done)    [ "$BEST" != "waiting" ] && BEST="done" ;;
+        working) [ "$BEST" != "waiting" ] && [ "$BEST" != "done" ] && BEST="working" ;;
         idle)    [ -z "$BEST" ] && BEST="idle" ;;
       esac
     done
     tmux set-option -qw -t "$WINDOW_ID" @claude_state "${BEST:-}" 2>/dev/null || true
+  fi
+
+  # Aggregate worst state across all panes in this session
+  if [ -n "$SESSION_NAME" ]; then
+    BEST=""
+    for pane in $(tmux list-panes -s -t "$SESSION_NAME" -F '#{pane_id}' 2>/dev/null); do
+      FILE="${STATE_DIR}/pane-${pane//[^a-zA-Z0-9_%]/_}.state"
+      [ -f "$FILE" ] || continue
+      STATE=$(cat "$FILE" 2>/dev/null)
+      case "$STATE" in
+        waiting) BEST="waiting"; break ;;
+        done)    [ "$BEST" != "waiting" ] && BEST="done" ;;
+        working) [ "$BEST" != "waiting" ] && [ "$BEST" != "done" ] && BEST="working" ;;
+        idle)    [ -z "$BEST" ] && BEST="idle" ;;
+      esac
+    done
+    tmux set-option -qt "$SESSION_NAME" @claude_session_state "${BEST:-}" 2>/dev/null || true
   fi
 fi
 
