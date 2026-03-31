@@ -9,6 +9,9 @@ link-url = true
 
 adjust-cell-height = +10%
 
+# Send Ctrl+Tab as CSI-u sequence for tmux window switching
+keybind = ctrl+tab=text:\x1b[9;5u
+
 # Custom tab/window switching: remaps Cmd+N to send Alt+N (for tmux window switching),
 # moves Ghostty tab switching to Cmd+Ctrl+N. Disabled to keep default Cmd+N = Ghostty tabs.
 # To re-enable: uncomment all lines below.
