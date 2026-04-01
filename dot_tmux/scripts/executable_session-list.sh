@@ -1,6 +1,6 @@
 #!/bin/sh
 # Renders styled session list with claude status icons for tmux status bar
-# Active session is lavender, inactive is muted. Claude icon color-coded by state.
+# Sorted alphabetically by name. Clickable via #[range=session|$id].
 
 active_fg="#b4befe"
 inactive_fg="#6c7086"
@@ -10,7 +10,9 @@ state_dir="/tmp/claude-tmux"
 current_session=$(tmux display-message -p '#S')
 
 result=""
-for session in $(tmux list-sessions -F '#S'); do
+for entry in $(tmux list-sessions -F '#{session_id}=#{session_name}' | sort -t= -k2); do
+  id="${entry%%=*}"
+  session="${entry#*=}"
   [ "$session" = "floating" ] && continue
   if [ "$session" = "$current_session" ]; then
     fg="$active_fg"
@@ -41,7 +43,7 @@ for session in $(tmux list-sessions -F '#S'); do
     idle)    claude_icon="#[fg=#6c7086]󰚩 " ;;
   esac
 
-  result="${result}#[range=session|${session}]#[fg=${fg},bg=${bar_bg}] ${claude_icon}#[fg=${fg}]${session} #[norange]"
+  result="${result}#[range=session|${id}]#[fg=${fg},bg=${bar_bg}] ${claude_icon}#[fg=${fg}]${session} #[norange]"
 done
 
 printf '%s' "$result"
