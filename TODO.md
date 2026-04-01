@@ -6,9 +6,7 @@
 - tmux claude status: integrate with sessionx session switcher (show claude state per session in preview)
 - tmux claude status: stale state file cleanup (e.g. if claude crashes without firing SessionEnd)
 - review candidates below and add to chezmoi as needed
-- toggle between light and dark themes
 - nvim config management and setup
-- hotkeys for switching between terminal, vscode, browser (both profiles) and other common apps
 - improve zsh functionality
 
 ## To Explore

@@ -34,24 +34,6 @@ if [ "$CHANGED" = true ]; then
     esac
   done
   tmux set-option -qw -t "$WINDOW_ID" @claude_state "${BEST:-}" 2>/dev/null || true
-
-  # Also update session-level state
-  SESSION_ID=$(tmux display-message -p '#{session_id}' 2>/dev/null) || true
-  if [ -n "$SESSION_ID" ]; then
-    SBEST=""
-    for spane in $(tmux list-panes -s -t "$SESSION_ID" -F '#{pane_id}' 2>/dev/null); do
-      FILE="${STATE_DIR}/pane-${spane//[^a-zA-Z0-9_%]/_}.state"
-      [ -f "$FILE" ] || continue
-      STATE=$(cat "$FILE" 2>/dev/null)
-      case "$STATE" in
-        waiting) SBEST="waiting"; break ;;
-        done)    [ "$SBEST" != "waiting" ] && SBEST="done" ;;
-        working) [ "$SBEST" != "waiting" ] && [ "$SBEST" != "done" ] && SBEST="working" ;;
-        idle)    [ -z "$SBEST" ] && SBEST="idle" ;;
-      esac
-    done
-    tmux set-option -qt "$SESSION_ID" @claude_session_state "${SBEST:-}" 2>/dev/null || true
-  fi
 fi
 
 exit 0
