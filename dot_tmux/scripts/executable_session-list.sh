@@ -7,6 +7,17 @@ inactive_fg="#6c7086"
 bar_bg="#181825"
 state_dir="/tmp/claude-tmux"
 
+# Sweep: remove state files for panes that no longer exist
+if [ -d "$state_dir" ]; then
+  for file in "$state_dir"/pane-*.state; do
+    [ -f "$file" ] || continue
+    pane_id=$(basename "$file" .state | sed 's/^pane-//')
+    if ! tmux display-message -t "$pane_id" -p '' 2>/dev/null; then
+      rm -f "$file"
+    fi
+  done
+fi
+
 current_session=$(tmux display-message -p '#S')
 
 result=""
@@ -23,7 +34,7 @@ for entry in $(tmux list-sessions -F '#{session_id}=#{session_name}' | sort -t= 
   # Find worst claude state across all panes in session
   claude_icon=""
   best_state=""
-  for pane in $(tmux list-panes -s -t "$session" -F '#{pane_id}' 2>/dev/null); do
+  for pane in $(tmux list-panes -s -t "$id" -F '#{pane_id}' 2>/dev/null); do
     safe_pane=$(printf '%s' "$pane" | tr -cd 'a-zA-Z0-9_%')
     file="${state_dir}/pane-${safe_pane}.state"
     [ -f "$file" ] || continue

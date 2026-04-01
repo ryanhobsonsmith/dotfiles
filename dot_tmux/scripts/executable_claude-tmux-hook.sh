@@ -26,7 +26,7 @@ esac
 # Update tmux window + session options (used by status bar format conditionals)
 if [ "$PANE_ID" != "unknown" ] && command -v tmux >/dev/null 2>&1; then
   WINDOW_ID=$(tmux display-message -t "$PANE_ID" -p '#{window_id}' 2>/dev/null) || true
-  SESSION_NAME=$(tmux display-message -t "$PANE_ID" -p '#{session_name}' 2>/dev/null) || true
+  SESSION_ID=$(tmux display-message -t "$PANE_ID" -p '#{session_id}' 2>/dev/null) || true
 
   # Aggregate worst state across all panes in this window
   if [ -n "$WINDOW_ID" ]; then
@@ -46,9 +46,9 @@ if [ "$PANE_ID" != "unknown" ] && command -v tmux >/dev/null 2>&1; then
   fi
 
   # Aggregate worst state across all panes in this session
-  if [ -n "$SESSION_NAME" ]; then
+  if [ -n "$SESSION_ID" ]; then
     BEST=""
-    for pane in $(tmux list-panes -s -t "$SESSION_NAME" -F '#{pane_id}' 2>/dev/null); do
+    for pane in $(tmux list-panes -s -t "$SESSION_ID" -F '#{pane_id}' 2>/dev/null); do
       FILE="${STATE_DIR}/pane-${pane//[^a-zA-Z0-9_%]/_}.state"
       [ -f "$FILE" ] || continue
       STATE=$(cat "$FILE" 2>/dev/null)
@@ -59,7 +59,7 @@ if [ "$PANE_ID" != "unknown" ] && command -v tmux >/dev/null 2>&1; then
         idle)    [ -z "$BEST" ] && BEST="idle" ;;
       esac
     done
-    tmux set-option -qt "$SESSION_NAME" @claude_session_state "${BEST:-}" 2>/dev/null || true
+    tmux set-option -qt "$SESSION_ID" @claude_session_state "${BEST:-}" 2>/dev/null || true
   fi
 fi
 

@@ -53,6 +53,13 @@ alias epp='export PYTHONPATH=$(pwd)'
 alias prune-git='git branch --merged main | grep -vE "(^\*|main|master|$(git symbolic-ref --short HEAD))" | xargs -n 1 git branch -d'
 alias h2='$(npm prefix -s)/node_modules/.bin/shopify hydrogen'
 
+# display input switching
+alias sdi="set-display-inputs"
+alias mm1="set-display-inputs hdmi2 hdmi2"
+alias mm1dp="set-display-inputs hdmi2 dp"
+alias mdpdp="set-display-inputs dp dp"
+alias mlx="set-display-inputs dp hdmi1"
+
 # chezmoi aliases
 alias cm="chezmoi"
 alias cma="chezmoi apply"
@@ -102,17 +109,17 @@ cts() {
   local session_name="$(basename "$dir")"
   local sh="$(basename "$SHELL")"
 
-  if ! tmux has-session -t "$session_name" 2>/dev/null; then
+  if ! tmux has-session -t "=$session_name" 2>/dev/null; then
     tmux new-session -d -s "$session_name" -c "$dir" -n "nvim" "$sh -ic 'nvim; exec $sh'"
-    tmux new-window -t "$session_name" -c "$dir" -n "zsh"
-    tmux new-window -t "$session_name" -c "$dir" -n "claude" "$sh -ic 'claude; exec $sh'"
+    tmux new-window -t "$session_name:" -c "$dir" -n "zsh"
+    tmux new-window -t "$session_name:" -c "$dir" -n "claude" "$sh -ic 'claude; exec $sh'"
     tmux select-window -t "$session_name:nvim"
   fi
 
   if [ -n "$TMUX" ]; then
-    tmux switch-client -t "$session_name"
+    tmux switch-client -t "=$session_name"
   else
-    tmux attach-session -t "$session_name"
+    tmux attach-session -t "=$session_name"
   fi
 }
 
@@ -195,6 +202,99 @@ alwt-stop() {
   # Open a cleanup window in the main repo and run the cleanup script
   tmux new-window -t "$session_name" -n "cleanup" -c "$AL_REPO" \
     "bash cleanup-worktree.sh $force '$worktree_dir'; echo; echo 'Press enter to close session...'; read; tmux switch-client -l 2>/dev/null; tmux kill-session -t '$session_name'"
+  tmux select-window -t "$session_name:cleanup"
+  if [ -n "$TMUX" ]; then
+    tmux switch-client -t "$session_name"
+  else
+    tmux attach-session -t "$session_name"
+  fi
+}
+
+# ── Algebra Labs worktree management (v2 — uses wt:setup) ──
+AL_WT_BASE_REF="worktree-improvements"  # TODO: change to "main" after merge
+AL_WT_SCRIPT_DIR="$HOME/algebralabs/worktree-improvements"  # TODO: change to "$AL_REPO" after merge
+
+alwt2() {
+  if [ $# -eq 0 ] || { [ $# -eq 1 ] && [ "$1" = "." ]; }; then
+    local git_root
+    git_root="$(git rev-parse --show-toplevel 2>/dev/null)" || { echo "Not in a git repo"; return 1; }
+    cts "$git_root"
+    return
+  fi
+
+  local branch_name="$1"
+  local worktree_dir
+
+  if [ -d "$branch_name" ]; then
+    worktree_dir="$(cd "$branch_name" && pwd)"
+  else
+    worktree_dir="$(dirname "$AL_REPO")/$branch_name"
+  fi
+
+  if [ ! -d "$worktree_dir" ]; then
+    (cd "$AL_REPO" && git worktree add -b "$branch_name" "$worktree_dir" "origin/$AL_WT_BASE_REF") || return 1
+  fi
+
+  (cd "$worktree_dir" && pnpm wt:setup) || return 1
+  cts "$worktree_dir"
+}
+
+alwt2-stop() {
+  local force="" worktree_dir=""
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --force|-f) force="--force"; shift ;;
+      *) worktree_dir="$1"; shift ;;
+    esac
+  done
+
+  if [ -z "$worktree_dir" ]; then
+    local git_toplevel
+    git_toplevel="$(git rev-parse --show-toplevel 2>/dev/null)"
+    if [ -n "$git_toplevel" ] && [ "$git_toplevel" != "$AL_REPO" ]; then
+      worktree_dir="$git_toplevel"
+    else
+      worktree_dir="$(tmux display-message -p '#{session_path}' 2>/dev/null)"
+    fi
+  fi
+
+  # Resolve to absolute path early
+  if [ -n "$worktree_dir" ]; then
+    if [ ! -d "$worktree_dir" ]; then
+      echo "Directory not found: $worktree_dir"
+      return 1
+    fi
+    worktree_dir="$(realpath "$worktree_dir")"
+  fi
+
+  if [ -z "$worktree_dir" ] || [ "$worktree_dir" = "$AL_REPO" ]; then
+    echo "Usage: alwt2-stop [--force] [worktree-dir]  (or run from within a worktree tmux session)"
+    return 1
+  fi
+
+  echo "Will remove worktree: $worktree_dir"
+  printf "Continue? [y/N] "
+  read -r confirm
+  if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
+    echo "Aborted."
+    return 1
+  fi
+
+  local session_name="$(basename "$worktree_dir")"
+  if ! tmux has-session -t "$session_name" 2>/dev/null; then
+    echo "No tmux session '$session_name' found, running cleanup only"
+    bash "$AL_WT_SCRIPT_DIR/bin/cleanup-worktree.sh" $force "$worktree_dir"
+    return
+  fi
+
+  local windows
+  windows=$(tmux list-windows -t "$session_name" -F '#{window_id}')
+  for w in $windows; do
+    tmux kill-window -t "$w" 2>/dev/null
+  done
+
+  tmux new-window -t "$session_name" -n "cleanup" -c "$AL_WT_SCRIPT_DIR" \
+    "bash bin/cleanup-worktree.sh $force '$worktree_dir'; echo; echo 'Press enter to close session...'; read; tmux switch-client -l 2>/dev/null; tmux kill-session -t '$session_name'"
   tmux select-window -t "$session_name:cleanup"
   if [ -n "$TMUX" ]; then
     tmux switch-client -t "$session_name"
