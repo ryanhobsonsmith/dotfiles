@@ -17,7 +17,14 @@ case "$EVENT" in
   UserPromptSubmit)  echo "working" > "$STATE_FILE" ;;
   PreToolUse)        echo "working" > "$STATE_FILE" ;;
   Stop)              echo "done" > "$STATE_FILE" ;;
-  Notification)      echo "done" > "$STATE_FILE" ;;
+  Notification)
+    # notification_type: permission_prompt, idle_prompt, elicitation_dialog, auth_success
+    NTYPE=$(printf '%s' "$INPUT" | grep -o '"notification_type"[[:space:]]*:[[:space:]]*"[^"]*"' | grep -o '"[^"]*"$' | tr -d '"')
+    case "$NTYPE" in
+      permission_prompt|idle_prompt|elicitation_dialog) echo "waiting" > "$STATE_FILE" ;;
+      # auth_success and unknown types: no state change
+    esac
+    ;;
   PermissionRequest) echo "waiting" > "$STATE_FILE" ;;
   SessionStart)      echo "idle" > "$STATE_FILE" ;;
   SessionEnd)        rm -f "$STATE_FILE" ;;
