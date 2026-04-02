@@ -21,6 +21,8 @@ bindkey -M vicmd '^E' edit-command-line
 bindkey '^R' history-incremental-search-backward
 bindkey '^[[H' beginning-of-line
 bindkey '^[[F' end-of-line
+bindkey -M vicmd 'B' vi-first-non-blank
+bindkey -M vicmd 'E' vi-end-of-line
 
 # Swallow Alt+N sequences so Ghostty's cmd+N (which sends \x1bN for tmux)
 # doesn't trigger vi normal mode when tmux is not running
