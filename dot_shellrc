@@ -38,7 +38,7 @@ export KUBECONFIG="$HOME/.kube/config:$HOME/smack/infra/smack-demo-cluster.json"
 
 # ── Aliases ──────────────────────────────────────────────────
 alias pn='pnpm'
-alias erc='vim ~/.zshrc'
+alias erc='nvim ~/.local/share/chezmoi'
 alias rrc='exec zsh'
 alias k='kubectl'
 alias kga='kubectl get -A'
