@@ -38,7 +38,7 @@ export KUBECONFIG="$HOME/.kube/config:$HOME/smack/infra/smack-demo-cluster.json"
 
 # ── Aliases ──────────────────────────────────────────────────
 alias pn='pnpm'
-alias erc='nvim ~/.local/share/chezmoi'
+alias erc='(cd ~/.local/share/chezmoi && nvim .)'
 alias rrc='exec zsh'
 alias rtc='tmux source-file ~/.tmux.conf && echo "Config reloaded!"'
 alias k='kubectl'
@@ -65,7 +65,12 @@ alias gsw='git switch'
 alias gb='git branch'
 alias glog='git log --oneline --graph --decorate'
 alias grb='git rebase'
-alias gst='git stash'
+alias gstash='git stash'
+alias gstat='git status'
+alias gca='git commit --amend --no-edit'
+alias gcam='git commit --amend -m'
+alias gp='git push'
+alias gpl='git pull'
 
 # display input switching
 alias sdi="set-display-inputs"
