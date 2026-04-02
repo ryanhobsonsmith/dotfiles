@@ -5,9 +5,9 @@
 - ~~need to bring claude settings under chezmoi~~ done (symlinked)
 - tmux claude status: integrate with sessionx session switcher (show claude state per session in preview)
 - tmux claude status: stale state file cleanup (e.g. if claude crashes without firing SessionEnd)
-- tmux claude status: indicator stays red after Notification event even when nothing is pending
-- tmux claude status: wrong session highlighted when claude state changes in background session
-- tmux: hide catppuccin session pill in two-line mode (redundant with session bar)
+- ~~tmux claude status: indicator stays red after Notification event even when nothing is pending~~ fixed
+- ~~tmux claude status: wrong session highlighted when claude state changes in background session~~ fixed
+- ~~tmux: hide catppuccin session pill in two-line mode (redundant with session bar)~~ fixed
 - review candidates below and add to chezmoi as needed
 - nvim config management and setup
 - improve zsh functionality
