@@ -7,7 +7,6 @@ STATE_DIR="/tmp/claude-tmux"
 [ -d "$STATE_DIR" ] || exit 0
 
 WINDOW_ID=$(tmux display-message -p '#{window_id}' 2>/dev/null) || exit 0
-SESSION_ID=$(tmux display-message -p '#{session_id}' 2>/dev/null) || true
 
 CHANGED=false
 for pane in $(tmux list-panes -t "$WINDOW_ID" -F '#{pane_id}' 2>/dev/null); do
@@ -44,11 +43,8 @@ if [ "$CHANGED" = true ]; then
   BEST=$(aggregate_state "${PANES[@]}")
   tmux set-option -qw -t "$WINDOW_ID" @claude_state "${BEST:-}" 2>/dev/null || true
 
-  if [ -n "$SESSION_ID" ]; then
-    read -ra SESSION_PANES <<< "$(tmux list-panes -s -t "$SESSION_ID" -F '#{pane_id}' 2>/dev/null | tr '\n' ' ')"
-    BEST=$(aggregate_state "${SESSION_PANES[@]}")
-    tmux set-option -qs -t "$SESSION_ID" @claude_state "${BEST:-}" 2>/dev/null || true
-  fi
+  # Rebuild session bar cache with updated state
+  ~/.tmux/scripts/session-list.sh &
 fi
 
 exit 0

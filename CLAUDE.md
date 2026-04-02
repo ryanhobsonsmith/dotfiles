@@ -121,10 +121,11 @@ Claude Code hooks write per-pane state to `/tmp/claude-tmux/` and set tmux windo
 1. Hooks in `settings.json` call `~/.tmux/scripts/claude-tmux-hook.sh` on each event
 2. The script writes state to `/tmp/claude-tmux/pane-{TMUX_PANE}.state` and sets `@claude_state` on both the tmux window and session (aggregated worst-state across all panes)
 3. Window tabs use tmux format conditionals on window-level `@claude_state` (no `#()` — avoids pill sizing issues)
-4. Session bar uses native `#{S:}` format with conditionals on session-level `@claude_state` — no shell scripts, no async `#()`, no flashing
+4. Session bar uses `#(cat /tmp/claude-tmux/session-bar)` — a pre-built cache file written by `session-list.sh` on hook events, not every render. The `cat` is near-instant so there's no visible flashing. Sessions are sorted alphabetically.
 5. State priority: `waiting` > `done` > `working` > `idle` (shows the state needing most attention)
 6. Refresh rate is controlled by `status-interval` (default 15s, configurable in `dot_tmux.conf`)
-7. Sessions are clickable via `#[range=session|$id]` markers in the `#{S:}` format
+7. Sessions are clickable via `#[range=session|$id]` markers in the cached output
+8. Session bar rebuilds are triggered by: claude state hooks, `session-created`, `session-closed`, `session-renamed`, `client-session-changed`
 
 ## Conventions
 

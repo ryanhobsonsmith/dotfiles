@@ -1,27 +1,29 @@
 #!/bin/sh
-# Renders styled session list with claude status icons for tmux status bar
+# Rebuilds the session bar cache file for tmux status-format[0].
+# Called by hooks (claude state changes, session lifecycle, session switch).
 # Sorted alphabetically by name. Clickable via #[range=session|$id].
 
 active_fg="#b4befe"
 inactive_fg="#6c7086"
 bar_bg="#181825"
 state_dir="/tmp/claude-tmux"
+cache_file="${state_dir}/session-bar"
+
+mkdir -p "$state_dir"
 
 # Sweep: remove state files for panes that no longer exist
-if [ -d "$state_dir" ]; then
-  for file in "$state_dir"/pane-*.state; do
-    [ -f "$file" ] || continue
-    pane_id=$(basename "$file" .state | sed 's/^pane-//')
-    if ! tmux display-message -t "$pane_id" -p '' 2>/dev/null; then
-      rm -f "$file"
-    fi
-  done
-fi
+for file in "$state_dir"/pane-*.state; do
+  [ -f "$file" ] || continue
+  pane_id=$(basename "$file" .state | sed 's/^pane-//')
+  if ! tmux display-message -t "$pane_id" -p '' 2>/dev/null; then
+    rm -f "$file"
+  fi
+done
 
-current_session=$(tmux display-message -p '#S')
+current_session=$(tmux display-message -p '#S' 2>/dev/null) || current_session=""
 
 result=""
-for entry in $(tmux list-sessions -F '#{session_id}=#{session_name}' | sort -t= -k2); do
+for entry in $(tmux list-sessions -F '#{session_id}=#{session_name}' 2>/dev/null | sort -t= -k2); do
   id="${entry%%=*}"
   session="${entry#*=}"
   [ "$session" = "floating" ] && continue
@@ -57,4 +59,4 @@ for entry in $(tmux list-sessions -F '#{session_id}=#{session_name}' | sort -t= 
   result="${result}#[range=session|${id}]#[fg=${fg},bg=${bar_bg}] ${claude_icon}#[fg=${fg}]${session} #[norange]"
 done
 
-printf '%s' "$result"
+printf '%s' "$result" > "$cache_file"

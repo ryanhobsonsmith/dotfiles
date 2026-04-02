@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Claude Code hook: tracks per-pane state for tmux status integration
-# Writes state files and sets tmux window + session options (for window tabs and session bar)
+# Writes state files, sets tmux window options (for window tabs), rebuilds session bar cache
 set -euo pipefail
 
 STATE_DIR="/tmp/claude-tmux"
@@ -46,9 +46,8 @@ aggregate_state() {
 # Only set if value changed to avoid triggering unnecessary status refreshes
 if [ "$PANE_ID" != "unknown" ] && command -v tmux >/dev/null 2>&1; then
   WINDOW_ID=$(tmux display-message -t "$PANE_ID" -p '#{window_id}' 2>/dev/null) || true
-  SESSION_ID=$(tmux display-message -t "$PANE_ID" -p '#{session_id}' 2>/dev/null) || true
 
-  # Update window-level @claude_state
+  # Update window-level @claude_state (used by catppuccin window tab conditionals)
   if [ -n "$WINDOW_ID" ]; then
     read -ra PANES <<< "$(tmux list-panes -t "$WINDOW_ID" -F '#{pane_id}' 2>/dev/null | tr '\n' ' ')"
     BEST=$(aggregate_state "${PANES[@]}")
@@ -56,13 +55,8 @@ if [ "$PANE_ID" != "unknown" ] && command -v tmux >/dev/null 2>&1; then
     [ "${BEST:-}" != "${CURRENT:-}" ] && tmux set-option -qw -t "$WINDOW_ID" @claude_state "${BEST:-}" 2>/dev/null || true
   fi
 
-  # Update session-level @claude_state (aggregated across all panes in all windows)
-  if [ -n "$SESSION_ID" ]; then
-    read -ra SESSION_PANES <<< "$(tmux list-panes -s -t "$SESSION_ID" -F '#{pane_id}' 2>/dev/null | tr '\n' ' ')"
-    BEST=$(aggregate_state "${SESSION_PANES[@]}")
-    CURRENT=$(tmux show-option -qvs -t "$SESSION_ID" @claude_state 2>/dev/null) || true
-    [ "${BEST:-}" != "${CURRENT:-}" ] && tmux set-option -qs -t "$SESSION_ID" @claude_state "${BEST:-}" 2>/dev/null || true
-  fi
+  # Rebuild session bar cache (sorted, with updated claude state icons)
+  ~/.tmux/scripts/session-list.sh &
 fi
 
 exit 0
