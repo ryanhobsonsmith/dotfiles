@@ -13,7 +13,7 @@ for pane in $(tmux list-panes -t "$WINDOW_ID" -F '#{pane_id}' 2>/dev/null); do
   FILE="${STATE_DIR}/pane-${pane//[^a-zA-Z0-9_%]/_}.state"
   [ -f "$FILE" ] || continue
   STATE=$(cat "$FILE" 2>/dev/null)
-  if [ "$STATE" = "done" ]; then
+  if [ "$STATE" = "done" ] || [ "$STATE" = "waiting" ]; then
     echo "idle" > "$FILE"
     CHANGED=true
   fi

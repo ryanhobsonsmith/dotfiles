@@ -112,10 +112,10 @@ Claude Code hooks write per-pane state to `/tmp/claude-tmux/` and set tmux windo
 | `UserPromptSubmit` | `working` | peach (`#fab387`) |
 | `PreToolUse` | `working` | peach (`#fab387`) |
 | `Stop` | `done` | green (`#a6e3a1`) |
-| `Notification` | `waiting` | red (`#f38ba8`) |
+| `Notification` | `done` | green (`#a6e3a1`) |
 | `PermissionRequest` | `waiting` | red (`#f38ba8`) |
 | `SessionEnd` | *(file deleted)* | no icon |
-| *(view window)* | `idle` (from `done`) | grey (`#6c7086`) |
+| *(view window)* | `idle` (from `done`/`waiting`) | grey (`#6c7086`) |
 
 **How it works:**
 1. Hooks in `settings.json` call `~/.tmux/scripts/claude-tmux-hook.sh` on each event

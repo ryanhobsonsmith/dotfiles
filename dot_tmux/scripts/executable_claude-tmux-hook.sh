@@ -17,7 +17,7 @@ case "$EVENT" in
   UserPromptSubmit)  echo "working" > "$STATE_FILE" ;;
   PreToolUse)        echo "working" > "$STATE_FILE" ;;
   Stop)              echo "done" > "$STATE_FILE" ;;
-  Notification)      echo "waiting" > "$STATE_FILE" ;;
+  Notification)      echo "done" > "$STATE_FILE" ;;
   PermissionRequest) echo "waiting" > "$STATE_FILE" ;;
   SessionStart)      echo "idle" > "$STATE_FILE" ;;
   SessionEnd)        rm -f "$STATE_FILE" ;;
