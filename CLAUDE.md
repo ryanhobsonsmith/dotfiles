@@ -112,7 +112,8 @@ Claude Code hooks write per-pane state to `/tmp/claude-tmux/` and set tmux windo
 | `UserPromptSubmit` | `working` | peach (`#fab387`) |
 | `PreToolUse` | `working` | peach (`#fab387`) |
 | `Stop` | `done` | green (`#a6e3a1`) |
-| `Notification` (permission_prompt, idle_prompt, elicitation_dialog) | `waiting` | red (`#f38ba8`) |
+| `Notification` (permission_prompt, elicitation_dialog) | `waiting` | red (`#f38ba8`) |
+| `Notification` (idle_prompt) | `done` | green (`#a6e3a1`) |
 | `Notification` (auth_success) | *(no change)* | — |
 | `PermissionRequest` | `waiting` | red (`#f38ba8`) |
 | `SessionEnd` | *(file deleted)* | no icon |

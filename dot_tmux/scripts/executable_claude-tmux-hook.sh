@@ -21,7 +21,8 @@ case "$EVENT" in
     # notification_type: permission_prompt, idle_prompt, elicitation_dialog, auth_success
     NTYPE=$(printf '%s' "$INPUT" | grep -o '"notification_type"[[:space:]]*:[[:space:]]*"[^"]*"' | grep -o '"[^"]*"$' | tr -d '"')
     case "$NTYPE" in
-      permission_prompt|idle_prompt|elicitation_dialog) echo "waiting" > "$STATE_FILE" ;;
+      permission_prompt|elicitation_dialog) echo "waiting" > "$STATE_FILE" ;;
+      idle_prompt) echo "done" > "$STATE_FILE" ;;
       # auth_success and unknown types: no state change
     esac
     ;;
