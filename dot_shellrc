@@ -54,6 +54,19 @@ alias epp='export PYTHONPATH=$(pwd)'
 alias prune-git='git branch --merged main | grep -vE "(^\*|main|master|$(git symbolic-ref --short HEAD))" | xargs -n 1 git branch -d'
 alias h2='$(npm prefix -s)/node_modules/.bin/shopify hydrogen'
 
+# git
+alias g='git'
+alias ga='git add'
+alias gaa='git add --all'
+alias gc='git commit'
+alias gcm='git commit -m'
+alias gco='git checkout'
+alias gsw='git switch'
+alias gb='git branch'
+alias glog='git log --oneline --graph --decorate'
+alias grb='git rebase'
+alias gst='git stash'
+
 # display input switching
 alias sdi="set-display-inputs"
 alias mm1="set-display-inputs hdmi2 hdmi2"
