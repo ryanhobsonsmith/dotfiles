@@ -1,10 +1,11 @@
+keybind = global:cmd+;=toggle_quick_terminal
 keybind = cmd+shift+r=prompt_tab_title
 font-family = Hack
 font-size = 14
 
 theme = TokyoNight Night
 
-window-save-state = always
+window-save-state = never
 link-url = true
 
 adjust-cell-height = +10%
