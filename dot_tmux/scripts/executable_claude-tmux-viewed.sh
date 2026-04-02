@@ -7,6 +7,7 @@ STATE_DIR="/tmp/claude-tmux"
 [ -d "$STATE_DIR" ] || exit 0
 
 WINDOW_ID=$(tmux display-message -p '#{window_id}' 2>/dev/null) || exit 0
+SESSION_ID=$(tmux display-message -p '#{session_id}' 2>/dev/null) || true
 
 CHANGED=false
 for pane in $(tmux list-panes -t "$WINDOW_ID" -F '#{pane_id}' 2>/dev/null); do
@@ -19,21 +20,35 @@ for pane in $(tmux list-panes -t "$WINDOW_ID" -F '#{pane_id}' 2>/dev/null); do
   fi
 done
 
-# Update window option if any state changed
+# Update window and session options if any state changed
 if [ "$CHANGED" = true ]; then
-  BEST=""
-  for pane in $(tmux list-panes -t "$WINDOW_ID" -F '#{pane_id}' 2>/dev/null); do
-    FILE="${STATE_DIR}/pane-${pane//[^a-zA-Z0-9_%]/_}.state"
-    [ -f "$FILE" ] || continue
-    STATE=$(cat "$FILE" 2>/dev/null)
-    case "$STATE" in
-      waiting) BEST="waiting"; break ;;
-      done)    [ "$BEST" != "waiting" ] && BEST="done" ;;
-      working) [ "$BEST" != "waiting" ] && [ "$BEST" != "done" ] && BEST="working" ;;
-      idle)    [ -z "$BEST" ] && BEST="idle" ;;
-    esac
-  done
+  # Aggregate worst state from pane state files
+  aggregate_state() {
+    local best=""
+    for pane in "$@"; do
+      local file="${STATE_DIR}/pane-${pane//[^a-zA-Z0-9_%]/_}.state"
+      [ -f "$file" ] || continue
+      local state
+      state=$(cat "$file" 2>/dev/null)
+      case "$state" in
+        waiting) best="waiting"; break ;;
+        done)    [ "$best" != "waiting" ] && best="done" ;;
+        working) [ "$best" != "waiting" ] && [ "$best" != "done" ] && best="working" ;;
+        idle)    [ -z "$best" ] && best="idle" ;;
+      esac
+    done
+    printf '%s' "$best"
+  }
+
+  read -ra PANES <<< "$(tmux list-panes -t "$WINDOW_ID" -F '#{pane_id}' 2>/dev/null | tr '\n' ' ')"
+  BEST=$(aggregate_state "${PANES[@]}")
   tmux set-option -qw -t "$WINDOW_ID" @claude_state "${BEST:-}" 2>/dev/null || true
+
+  if [ -n "$SESSION_ID" ]; then
+    read -ra SESSION_PANES <<< "$(tmux list-panes -s -t "$SESSION_ID" -F '#{pane_id}' 2>/dev/null | tr '\n' ' ')"
+    BEST=$(aggregate_state "${SESSION_PANES[@]}")
+    tmux set-option -qs -t "$SESSION_ID" @claude_state "${BEST:-}" 2>/dev/null || true
+  fi
 fi
 
 exit 0
