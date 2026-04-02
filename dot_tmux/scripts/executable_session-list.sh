@@ -15,7 +15,7 @@ mkdir -p "$state_dir"
 for file in "$state_dir"/pane-*.state; do
   [ -f "$file" ] || continue
   pane_id=$(basename "$file" .state | sed 's/^pane-//')
-  if ! tmux display-message -t "$pane_id" -p '' 2>/dev/null; then
+  if ! tmux display-message -t "$pane_id" -p '' >/dev/null 2>/dev/null; then
     rm -f "$file"
   fi
 done

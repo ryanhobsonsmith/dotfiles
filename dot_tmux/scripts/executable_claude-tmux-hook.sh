@@ -56,7 +56,7 @@ if [ "$PANE_ID" != "unknown" ] && command -v tmux >/dev/null 2>&1; then
   fi
 
   # Rebuild session bar cache (sorted, with updated claude state icons)
-  ~/.tmux/scripts/session-list.sh &
+  ~/.tmux/scripts/session-list.sh >/dev/null 2>&1 && tmux refresh-client -S &
 fi
 
 exit 0

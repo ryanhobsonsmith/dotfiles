@@ -44,7 +44,7 @@ if [ "$CHANGED" = true ]; then
   tmux set-option -qw -t "$WINDOW_ID" @claude_state "${BEST:-}" 2>/dev/null || true
 
   # Rebuild session bar cache with updated state
-  ~/.tmux/scripts/session-list.sh &
+  ~/.tmux/scripts/session-list.sh >/dev/null 2>&1 && tmux refresh-client -S &
 fi
 
 exit 0
