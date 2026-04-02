@@ -4,7 +4,8 @@
 set -uo pipefail
 
 STATE_DIR="/tmp/claude-tmux"
-SEARCH_DIRS="$HOME/algebralabs $HOME/projects"
+SEARCH_DIRS="$HOME/algebralabs $HOME/projects $HOME/chomp"
+PINNED_DIRS="$HOME/.local/share/chezmoi $HOME/.config/nvim"
 
 # --- helpers ---
 
@@ -41,6 +42,16 @@ list_entries() {
     local icon
     icon=$(claude_icon "$sid")
     printf '%s %s\n' "$icon" "$session"
+  done
+
+  # Pinned directories (always shown unless already a session)
+  printf '\033[38;2;108;112;134m── pinned ──\033[0m\n'
+  for dir in $PINNED_DIRS; do
+    [ -d "$dir" ] || continue
+    local name
+    name=$(basename "$dir")
+    tmux has-session -t "=$name" 2>/dev/null && continue
+    printf ' %s\n' "$dir"
   done
 
   # Separator
