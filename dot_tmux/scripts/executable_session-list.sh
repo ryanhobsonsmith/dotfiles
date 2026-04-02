@@ -20,18 +20,13 @@ for file in "$state_dir"/pane-*.state; do
   fi
 done
 
-current_session=$(tmux display-message -p '#S' 2>/dev/null) || current_session=""
-
 result=""
 for entry in $(tmux list-sessions -F '#{session_id}=#{session_name}' 2>/dev/null | sort -t= -k2); do
   id="${entry%%=*}"
   session="${entry#*=}"
   [ "$session" = "floating" ] && continue
-  if [ "$session" = "$current_session" ]; then
-    fg="$active_fg"
-  else
-    fg="$inactive_fg"
-  fi
+  # Use tmux conditional so #S resolves per-client at render time
+  fg="#{?#{==:#S,${session}},${active_fg},${inactive_fg}}"
 
   # Find worst claude state across all panes in session
   claude_icon=""
@@ -60,3 +55,5 @@ for entry in $(tmux list-sessions -F '#{session_id}=#{session_name}' 2>/dev/null
 done
 
 printf '%s' "$result" > "$cache_file"
+# Also store in tmux option for #{E:} expansion (per-client #S resolution)
+tmux set -g @session_bar "$result" 2>/dev/null || true
