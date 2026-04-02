@@ -117,7 +117,7 @@ Claude Code hooks write per-pane state to `/tmp/claude-tmux/` and set tmux windo
 | `Notification` (auth_success) | *(no change)* | — |
 | `PermissionRequest` | `waiting` | red (`#f38ba8`) |
 | `SessionEnd` | *(file deleted)* | no icon |
-| *(view window)* | `idle` (from `done`/`waiting`) | grey (`#6c7086`) |
+| *(view window)* | `idle` (from `done` only) | grey (`#6c7086`) |
 
 **How it works:**
 1. Hooks in `settings.json` call `~/.tmux/scripts/claude-tmux-hook.sh` on each event
