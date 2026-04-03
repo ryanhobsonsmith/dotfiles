@@ -1,12 +1,10 @@
 #!/bin/sh
-# Output memory usage/pressure percentage, OS-aware.
+# Output styled memory pressure segment for tmux status bar.
+# Single #() call that outputs the full icon+text pill with dynamic icon color.
+# Icon bg changes based on pressure level; text stays default module style.
+#
 # macOS: memory pressure from memory_pressure tool
 # Linux: used memory % from /proc/meminfo
-#
-# Args:
-#   --fg  Output hex fg color based on thresholds
-#   --bg  Output hex bg color based on thresholds
-#   (none) Output percentage value
 # Thresholds: @mem_medium_thresh (default 30), @mem_high_thresh (default 80)
 
 get_percentage() {
@@ -31,30 +29,24 @@ resolve_color() {
 
 pct=$(get_percentage)
 
-case "${1:-}" in
-  --fg|--bg)
-    med_thresh=$(get_tmux_option @mem_medium_thresh 30)
-    high_thresh=$(get_tmux_option @mem_high_thresh 80)
+med_thresh=$(get_tmux_option @mem_medium_thresh 30)
+high_thresh=$(get_tmux_option @mem_high_thresh 80)
 
-    if [ "$pct" -ge "$high_thresh" ]; then level=high
-    elif [ "$pct" -ge "$med_thresh" ]; then level=medium
-    else level=low; fi
+if [ "$pct" -ge "$high_thresh" ]; then level=high
+elif [ "$pct" -ge "$med_thresh" ]; then level=medium
+else level=low; fi
 
-    if [ "$1" = "--fg" ]; then
-      case $level in
-        high)   resolve_color "$(get_tmux_option @mem_high_fg_color '#{E:@thm_crust}')" ;;
-        medium) resolve_color "$(get_tmux_option @mem_medium_fg_color '#{E:@thm_fg}')" ;;
-        low)    resolve_color "$(get_tmux_option @mem_low_fg_color '#{E:@thm_fg}')" ;;
-      esac
-    else
-      case $level in
-        high)   resolve_color "$(get_tmux_option @mem_high_bg_color '#{E:@thm_red}')" ;;
-        medium) resolve_color "$(get_tmux_option @mem_medium_bg_color '#{E:@catppuccin_status_module_text_bg}')" ;;
-        low)    resolve_color "$(get_tmux_option @mem_low_bg_color '#{E:@catppuccin_status_module_text_bg}')" ;;
-      esac
-    fi
-    ;;
-  *)
-    printf "%d%%" "$pct"
-    ;;
+case $level in
+  high)   icon_bg=$(resolve_color "$(get_tmux_option @mem_high_icon_color '#{E:@thm_red}')") ;;
+  medium) icon_bg=$(resolve_color "$(get_tmux_option @mem_medium_icon_color '#{E:@thm_yellow}')") ;;
+  low)    icon_bg=$(resolve_color "$(get_tmux_option @mem_low_icon_color '#{E:@thm_blue}')") ;;
 esac
+
+icon_fg=$(resolve_color '#{E:@thm_crust}')
+text_fg=$(resolve_color '#{E:@thm_fg}')
+text_bg=$(resolve_color '#{E:@catppuccin_status_module_text_bg}')
+lsep=$(get_tmux_option @catppuccin_status_left_separator '')
+icon=$(get_tmux_option @catppuccin_mem_icon '󰍛 ')
+
+printf '#[fg=%s]%s#[fg=%s,bg=%s]%s#[fg=%s,bg=%s] %d%%#[fg=%s]' \
+  "$icon_bg" "$lsep" "$icon_fg" "$icon_bg" "$icon" "$text_fg" "$text_bg" "$pct" "$text_bg"
