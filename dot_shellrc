@@ -1,6 +1,15 @@
 # Shared shell config — sourced by both .zshrc and .bashrc
 # Shell-specific settings go in their respective files.
 
+# Detect current shell reliably ($SHELL can be unset under emulation)
+if [ -n "$ZSH_VERSION" ]; then
+  _CURRENT_SHELL=zsh
+elif [ -n "$BASH_VERSION" ]; then
+  _CURRENT_SHELL=bash
+else
+  _CURRENT_SHELL="${SHELL##*/}"
+fi
+
 # ── Environment ──────────────────────────────────────────────
 export LANG=en_US.UTF-8
 export CLICOLOR=1
@@ -337,7 +346,7 @@ _shell_reload_check() {
   if [ -n "$_SHELL_RELOAD_MTIME" ] && [ "$mtime" != "$_SHELL_RELOAD_MTIME" ]; then
     _SHELL_RELOAD_MTIME="$mtime"
     echo "[shellrc] Reloading config..."
-    source "$HOME/.${SHELL##*/}rc"
+    source "$HOME/.${_CURRENT_SHELL}rc"
     return
   fi
   _SHELL_RELOAD_MTIME="$mtime"
@@ -351,4 +360,4 @@ elif [ -n "$BASH_VERSION" ]; then
 fi
 
 # ── Prompt (starship) ────────────────────────────────────────
-command -v starship >/dev/null && eval "$(starship init "${SHELL##*/}")"
+command -v starship >/dev/null && eval "$(starship init "$_CURRENT_SHELL")"
