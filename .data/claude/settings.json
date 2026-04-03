@@ -9,10 +9,6 @@
           },
           {
             "type": "command",
-            "command": "/Users/rhsmith/.superset/hooks/notify.sh"
-          },
-          {
-            "type": "command",
             "command": "~/.tmux/scripts/claude-tmux-hook.sh"
           }
         ]
@@ -21,10 +17,6 @@
     "Stop": [
       {
         "hooks": [
-          {
-            "type": "command",
-            "command": "/Users/rhsmith/.superset/hooks/notify.sh"
-          },
           {
             "type": "command",
             "command": "~/.tmux/scripts/claude-tmux-hook.sh"
@@ -43,36 +35,10 @@
         ]
       }
     ],
-    "PostToolUse": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/Users/rhsmith/.superset/hooks/notify.sh"
-          }
-        ]
-      }
-    ],
-    "PostToolUseFailure": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/Users/rhsmith/.superset/hooks/notify.sh"
-          }
-        ]
-      }
-    ],
     "PermissionRequest": [
       {
         "matcher": "*",
         "hooks": [
-          {
-            "type": "command",
-            "command": "/Users/rhsmith/.superset/hooks/notify.sh"
-          },
           {
             "type": "command",
             "command": "~/.tmux/scripts/claude-tmux-hook.sh"

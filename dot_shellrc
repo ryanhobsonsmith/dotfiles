@@ -10,6 +10,8 @@ else
   _CURRENT_SHELL="${SHELL##*/}"
 fi
 
+_CURRENT_OS="$(uname)"
+
 # ── Environment ──────────────────────────────────────────────
 export LANG=en_US.UTF-8
 export CLICOLOR=1
@@ -26,6 +28,7 @@ export PNPM_HOME="$HOME/Library/pnpm"
 
 path_prepend() { case ":$PATH:" in *":$1:"*) ;; *) export PATH="$1:$PATH" ;; esac; }
 
+path_prepend "$HOME/.local/share/fnm"
 path_prepend "$HOME/.local/bin"
 path_prepend "$HOME/.npm-global/bin"
 path_prepend "$HOME/.serverless/bin"
@@ -339,7 +342,10 @@ _SHELL_RELOAD_MTIME=""
 _shell_reload_check() {
   local mtime
   if [ -f "$_SHELL_RELOAD_FILE" ]; then
-    mtime="$(stat -f %m "$_SHELL_RELOAD_FILE" 2>/dev/null)"
+    case "$_CURRENT_OS" in
+      Darwin) mtime="$(stat -f %m "$_SHELL_RELOAD_FILE")" ;;
+      *)      mtime="$(stat -c %Y "$_SHELL_RELOAD_FILE")" ;;
+    esac
   else
     return
   fi

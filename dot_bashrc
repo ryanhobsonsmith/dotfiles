@@ -1,7 +1,19 @@
 # Bash Setup
 
+# If not running interactively, don't do anything
+case $- in
+    *i*) ;;
+      *) return;;
+esac
+
 # ── Shared config ────────────────────────────────────────────
 source "$HOME/.shellrc"
+
+# ── History ──────────────────────────────────────────────────
+HISTCONTROL=ignoreboth
+shopt -s histappend
+HISTSIZE=50000
+HISTFILESIZE=100000
 
 # ── Tool integrations (bash-specific) ────────────────────────
 command -v fnm >/dev/null 2>&1 && eval "$(fnm env --use-on-cd --shell bash --version-file-strategy=recursive)"
