@@ -1,0 +1,20 @@
+#!/bin/bash
+set -e
+
+echo "=== Verifying dotfiles ==="
+test -f ~/.tmux.conf && echo "OK: .tmux.conf"
+test -d ~/.tmux/plugins/tpm && echo "OK: TPM installed"
+test -f ~/.config/ghostty/config && echo "OK: ghostty config"
+test -f ~/.shellrc && echo "OK: .shellrc"
+test -f ~/.zshrc && echo "OK: .zshrc"
+test -f ~/.bashrc && echo "OK: .bashrc"
+test -f ~/.zprofile && echo "OK: .zprofile"
+command -v zsh && echo "OK: zsh installed"
+command -v fzf && echo "OK: fzf installed"
+command -v tmux && echo "OK: tmux installed"
+command -v direnv && echo "OK: direnv installed"
+command -v nvim && echo "OK: neovim installed"
+command -v starship && echo "OK: starship installed"
+test -f ~/.config/starship.toml && echo "OK: starship.toml"
+test -d ~/.config/nvim && echo "OK: nvim config"
+echo "=== All checks passed ==="

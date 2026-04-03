@@ -1,0 +1,25 @@
+# Minimal starship config — Tokyo Night inspired
+
+format = """$directory$git_branch$git_status$cmd_duration$line_break$character"""
+
+[character]
+success_symbol = '[❯](bold green)'
+error_symbol = '[❯](bold red)'
+vicmd_symbol = '[❮](bold green)'
+
+[directory]
+truncation_length = 3
+style = 'bold blue'
+
+[git_branch]
+format = '[$branch]($style) '
+style = 'bold magenta'
+
+[git_status]
+format = '([$all_status$ahead_behind]($style) )'
+style = 'bold red'
+
+[cmd_duration]
+min_time = 2000
+format = '[$duration]($style) '
+style = 'bold yellow'

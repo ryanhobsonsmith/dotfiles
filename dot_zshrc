@@ -1,0 +1,70 @@
+#!/bin/zsh
+
+# ── Shared config ────────────────────────────────────────────
+source "$HOME/.shellrc"
+
+# ── History ──────────────────────────────────────────────────
+HISTFILE=~/.zsh_history
+HISTSIZE=50000
+SAVEHIST=50000
+setopt SHARE_HISTORY
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_REDUCE_BLANKS
+
+# ── Vi mode ──────────────────────────────────────────────────
+bindkey -v
+export KEYTIMEOUT=1
+autoload -Uz edit-command-line
+zle -N edit-command-line
+bindkey '^E' edit-command-line
+bindkey -M vicmd '^E' edit-command-line
+bindkey '^R' history-incremental-search-backward
+bindkey '^[[H' beginning-of-line
+bindkey '^[[F' end-of-line
+bindkey -M vicmd 'B' vi-first-non-blank
+bindkey -M vicmd 'E' vi-end-of-line
+
+# Swallow Alt+N sequences so Ghostty's cmd+N (which sends \x1bN for tmux)
+# doesn't trigger vi normal mode when tmux is not running
+for k in 0 1 2 3 4 5 6 7 8 9; do
+  bindkey -s "\e$k" ''
+done
+
+# Cursor shape: beam for insert, block for normal (works in tmux via passthrough)
+# Starship handles the symbol change (❯/❮) and color; we handle cursor shape
+_set_cursor() {
+  if [[ -n "$TMUX" ]]; then
+    printf '\ePtmux;\e\e[%s q\e\\' "$1"
+  else
+    printf '\e[%s q' "$1"
+  fi
+}
+_cursor_keymap_select() { case "$KEYMAP" in vicmd) _set_cursor 2 ;; *) _set_cursor 6 ;; esac; }
+_cursor_line_init() { _set_cursor 6; }
+autoload -Uz add-zle-hook-widget
+add-zle-hook-widget zle-keymap-select _cursor_keymap_select
+add-zle-hook-widget zle-line-init _cursor_line_init
+
+# ── Completions (cached — regenerates once per day) ──────────
+if type brew &>/dev/null; then
+  FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
+fi
+autoload -Uz compinit
+if [[ -z "$ZSH_COMPDUMP" ]]; then
+  ZSH_COMPDUMP="${ZDOTDIR:-$HOME}/.zcompdump"
+fi
+if [[ "$ZSH_COMPDUMP"(#qNmh-24) ]]; then
+  compinit -C -d "$ZSH_COMPDUMP"
+else
+  compinit -d "$ZSH_COMPDUMP"
+fi
+
+# ── Tool integrations (zsh-specific) ────────────────────────
+command -v fnm >/dev/null && eval "$(fnm env --use-on-cd --shell zsh --version-file-strategy=recursive)"
+command -v direnv >/dev/null && eval "$(direnv hook zsh)"
+command -v rbenv >/dev/null && eval "$(rbenv init - zsh)"
+command -v uv >/dev/null && eval "$(uv generate-shell-completion zsh)"
+command -v uvx >/dev/null && eval "$(uvx --generate-shell-completion zsh)"
+
+# ── Bun completions ─────────────────────────────────────────
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"

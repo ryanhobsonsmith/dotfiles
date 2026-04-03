@@ -1,0 +1,37 @@
+packages:
+  # Packages with the same name across all platforms
+  common:
+    - curl
+    - direnv
+    - fzf
+    - git
+    - just
+    - neovim
+    - tmux
+    - zoxide
+    - zsh
+
+  # macOS-only (via Homebrew)
+  darwin:
+    brews:
+      - age
+      - fd
+      - fnm
+      - gitleaks
+      - pre-commit
+      - rbenv
+      - starship
+    casks:
+      - ghostty
+      - font-hack
+
+  # Arch-only overrides or additions
+  arch:
+    - fd
+    - starship
+    - unzip
+
+  # Debian/Ubuntu-only overrides or additions
+  debian:
+    - fd-find
+    - unzip

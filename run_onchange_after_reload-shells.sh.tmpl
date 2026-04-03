@@ -1,0 +1,8 @@
+#!/bin/bash
+# Trigger auto-reload in all open shells when shell config changes.
+# shellrc hash: {{ include "dot_shellrc" | sha256sum }}
+# zshrc hash: {{ include "dot_zshrc" | sha256sum }}
+# bashrc hash: {{ include "dot_bashrc" | sha256sum }}
+
+touch "$HOME/.shell-auto-reload"
+echo "Touched ~/.shell-auto-reload — open shells will reload on next prompt."

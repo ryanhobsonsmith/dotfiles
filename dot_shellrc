@@ -1,0 +1,363 @@
+# Shared shell config — sourced by both .zshrc and .bashrc
+# Shell-specific settings go in their respective files.
+
+# Detect current shell reliably ($SHELL can be unset under emulation)
+if [ -n "$ZSH_VERSION" ]; then
+  _CURRENT_SHELL=zsh
+elif [ -n "$BASH_VERSION" ]; then
+  _CURRENT_SHELL=bash
+else
+  _CURRENT_SHELL="${SHELL##*/}"
+fi
+
+# ── Environment ──────────────────────────────────────────────
+export LANG=en_US.UTF-8
+export CLICOLOR=1
+export LSCOLORS=ExFxCxDxBxegedabagacad
+export EDITOR='nvim'
+export DO_NOT_TRACK=1
+export CDK_DISABLE_CLI_TELEMETRY=true
+export NODE_OPTIONS="--max-old-space-size=8192"
+
+# ── PATH ─────────────────────────────────────────────────────
+export GOPATH="$HOME/go"
+export BUN_INSTALL="$HOME/.bun"
+export PNPM_HOME="$HOME/Library/pnpm"
+
+path_prepend() { case ":$PATH:" in *":$1:"*) ;; *) export PATH="$1:$PATH" ;; esac; }
+
+path_prepend "$HOME/.local/bin"
+path_prepend "$HOME/.npm-global/bin"
+path_prepend "$HOME/.serverless/bin"
+path_prepend "$HOME/.antigravity/antigravity/bin"
+path_prepend "$HOME/.opencode/bin"
+path_prepend "$GOPATH/bin"
+path_prepend "$BUN_INSTALL/bin"
+path_prepend "/opt/homebrew/opt/openjdk/bin"
+path_prepend "/opt/homebrew/opt/openjdk@11/bin"
+path_prepend "/opt/homebrew/opt/postgresql@15/bin"
+
+case ":$PATH:" in *":$PNPM_HOME:"*) ;; *) export PATH="$PNPM_HOME:$PATH" ;; esac
+
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+export KUBECONFIG="$HOME/.kube/config:$HOME/smack/infra/smack-demo-cluster.json"
+
+# Cargo
+[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+
+# ── Aliases ──────────────────────────────────────────────────
+alias pn='pnpm'
+alias erc='(cd ~/.local/share/chezmoi && nvim .)'
+alias rrc='exec zsh'
+alias rtc='tmux source-file ~/.tmux.conf && echo "Config reloaded!"'
+alias k='kubectl'
+alias kga='kubectl get -A'
+alias kk='kubectl kustomize'
+alias kak='kubectl apply -k'
+alias hpr="hub pull-request"
+alias bwl='export BW_SESSION=$(bw login $email --raw)'
+alias bwu='export BW_SESSION=$(bw unlock --raw)'
+alias cmpush='bash -c "cd $(chezmoi source-path) && git add . && git commit -m \"cmpush\" && git push"'
+alias pa='eval $(poetry env activate)'
+alias epp='export PYTHONPATH=$(pwd)'
+alias prune-git='git branch --merged main | grep -vE "(^\*|main|master|$(git symbolic-ref --short HEAD))" | xargs -n 1 git branch -d'
+alias h2='$(npm prefix -s)/node_modules/.bin/shopify hydrogen'
+
+# git
+alias g='git'
+alias ga='git add'
+alias gaa='git add --all'
+alias gc='git commit'
+alias gcm='git commit -m'
+alias gco='git checkout'
+alias gsw='git switch'
+alias gb='git branch'
+alias glog='git log --oneline --graph --decorate'
+alias grb='git rebase'
+alias gstash='git stash'
+alias gstat='git status'
+alias gca='git commit --amend --no-edit'
+alias gcam='git commit --amend -m'
+alias gp='git push'
+alias gpl='git pull'
+
+# display input switching
+alias sdi="set-display-inputs"
+alias mm1="set-display-inputs hdmi2 hdmi2"
+alias mm1dp="set-display-inputs hdmi2 dp"
+alias mdpdp="set-display-inputs dp dp"
+alias mlx="set-display-inputs dp hdmi1"
+
+# chezmoi aliases
+alias cm="chezmoi"
+alias cma="chezmoi apply"
+alias cme="chezmoi edit"
+alias cmea="chezmoi edit --apply"
+alias cmcd="chezmoi cd"
+alias cmd="chezmoi diff"
+alias cmg="chezmoi git"
+alias nvcd='cd ~/.config/nvim'
+
+# ── Functions ────────────────────────────────────────────────
+wip() {
+  if [ $# -eq 0 ]; then
+    message="WIP"
+  else
+    message="WIP: $1"
+  fi
+  echo "$message"
+  cd "$(git rev-parse --show-toplevel)" && git status && git add --all . && git commit -m "$message"
+  cd -
+}
+
+# Force re-auth of aws profile
+aws_sso_auth() {
+  local profile="default"
+  for arg in "$@"; do
+    case $arg in
+      --profile=*) profile="${arg#*=}" ;;
+      *) profile="$arg" ;;
+    esac
+  done
+  echo "Forcing AWS SSO re-auth for profile: $profile"
+  aws sso logout --profile "$profile" >/dev/null 2>&1 || true
+  rm -f ~/.aws/sso/cache/*.json 2>/dev/null || true
+  aws sso login --profile "$profile"
+}
+
+aws_al_auth() {
+  aws_sso_auth --profile=al-test
+  aws sso login --profile=al-prod
+}
+
+# ── Tmux session management ─────────────────────────────────
+cts() {
+  local dir="${1:-.}"
+  dir="$(cd "$dir" && pwd)" || { echo "Invalid directory: $dir"; return 1; }
+  local session_name="$(basename "$dir")"
+  local sh="$(basename "$SHELL")"
+
+  if ! tmux has-session -t "=$session_name" 2>/dev/null; then
+    tmux new-session -d -s "$session_name" -c "$dir" -n "nvim" "$sh -ic 'nvim; exec $sh'"
+    tmux new-window -t "$session_name:" -c "$dir" -n "zsh"
+    tmux new-window -t "$session_name:" -c "$dir" -n "claude" "$sh -ic 'claude; exec $sh'"
+    tmux select-window -t "$session_name:nvim"
+  fi
+
+  if [ -n "$TMUX" ]; then
+    tmux switch-client -t "=$session_name"
+  else
+    tmux attach-session -t "=$session_name"
+  fi
+}
+
+ts() {
+  local selected
+  selected=$(find ~/algebralabs ~/projects -mindepth 1 -maxdepth 1 -type d 2>/dev/null | fzf --reverse)
+  [ -n "$selected" ] && cts "$selected"
+}
+
+# ── Algebra Labs worktree management ─────────────────────────
+AL_REPO="$HOME/algebralabs/algebra-labs"
+
+alwt() {
+  # If no branch name given, detect from current directory
+  if [ $# -eq 0 ] || { [ $# -eq 1 ] && [ "$1" = "." ]; }; then
+    local git_root
+    git_root="$(git rev-parse --show-toplevel 2>/dev/null)" || { echo "Not in a git repo"; return 1; }
+    cts "$git_root"
+    return
+  fi
+  # Parse branch name (last non-flag argument) for cts
+  local branch_name=""
+  for arg in "$@"; do
+    case "$arg" in -b|-n|--neon-parent-branch) ;; *) branch_name="$arg" ;; esac
+  done
+  local worktree_dir
+  # Support passing a full path to an existing worktree
+  if [ -d "$branch_name" ]; then
+    worktree_dir="$(cd "$branch_name" && pwd)"
+  else
+    worktree_dir="$(dirname "$AL_REPO")/$branch_name"
+  fi
+  if [ ! -d "$worktree_dir" ]; then
+    (cd "$AL_REPO" && bash create-worktree.sh "$@") || return 1
+  fi
+  cts "$worktree_dir"
+}
+
+alwt-stop() {
+  local force="" worktree_dir=""
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --force|-f) force="--force"; shift ;;
+      *) worktree_dir="$1"; shift ;;
+    esac
+  done
+  # Resolve worktree: explicit arg > cwd if it's a worktree > active tmux session
+  if [ -z "$worktree_dir" ]; then
+    local git_toplevel
+    git_toplevel="$(git rev-parse --show-toplevel 2>/dev/null)"
+    if [ -n "$git_toplevel" ] && [ "$git_toplevel" != "$AL_REPO" ]; then
+      worktree_dir="$git_toplevel"
+    else
+      worktree_dir="$(tmux display-message -p '#{session_path}' 2>/dev/null)"
+    fi
+  fi
+  if [ -z "$worktree_dir" ] || [ "$worktree_dir" = "$AL_REPO" ]; then
+    echo "Usage: alwt-stop [--force] [worktree-dir]  (or run from within a worktree tmux session)"
+    return 1
+  fi
+  echo "Will remove worktree: $worktree_dir"
+  printf "Continue? [y/N] "
+  read -r confirm
+  if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
+    echo "Aborted."
+    return 1
+  fi
+  local session_name="$(basename "$worktree_dir")"
+  if ! tmux has-session -t "$session_name" 2>/dev/null; then
+    echo "No tmux session '$session_name' found, running cleanup only"
+    (cd "$AL_REPO" && bash cleanup-worktree.sh $force "$worktree_dir")
+    return
+  fi
+  # Kill all existing windows (stops dev servers, etc.)
+  local windows
+  windows=$(tmux list-windows -t "$session_name" -F '#{window_id}')
+  for w in $windows; do
+    tmux kill-window -t "$w" 2>/dev/null
+  done
+  # Open a cleanup window in the main repo and run the cleanup script
+  tmux new-window -t "$session_name" -n "cleanup" -c "$AL_REPO" \
+    "bash cleanup-worktree.sh $force '$worktree_dir'; echo; echo 'Press enter to close session...'; read; tmux switch-client -l 2>/dev/null; tmux kill-session -t '$session_name'"
+  tmux select-window -t "$session_name:cleanup"
+  if [ -n "$TMUX" ]; then
+    tmux switch-client -t "$session_name"
+  else
+    tmux attach-session -t "$session_name"
+  fi
+}
+
+# ── Algebra Labs worktree management (v2 — uses wt:setup) ──
+AL_WT_BASE_REF="worktree-improvements"  # TODO: change to "main" after merge
+AL_WT_SCRIPT_DIR="$HOME/algebralabs/worktree-improvements"  # TODO: change to "$AL_REPO" after merge
+
+alwt2() {
+  if [ $# -eq 0 ] || { [ $# -eq 1 ] && [ "$1" = "." ]; }; then
+    local git_root
+    git_root="$(git rev-parse --show-toplevel 2>/dev/null)" || { echo "Not in a git repo"; return 1; }
+    cts "$git_root"
+    return
+  fi
+
+  local branch_name="$1"
+  local worktree_dir
+
+  if [ -d "$branch_name" ]; then
+    worktree_dir="$(cd "$branch_name" && pwd)"
+  else
+    worktree_dir="$(dirname "$AL_REPO")/$branch_name"
+  fi
+
+  if [ ! -d "$worktree_dir" ]; then
+    (cd "$AL_REPO" && git worktree add -b "$branch_name" "$worktree_dir" "origin/$AL_WT_BASE_REF") || return 1
+  fi
+
+  (cd "$worktree_dir" && pnpm wt:setup) || return 1
+  cts "$worktree_dir"
+}
+
+alwt2-stop() {
+  local force="" worktree_dir=""
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --force|-f) force="--force"; shift ;;
+      *) worktree_dir="$1"; shift ;;
+    esac
+  done
+
+  if [ -z "$worktree_dir" ]; then
+    local git_toplevel
+    git_toplevel="$(git rev-parse --show-toplevel 2>/dev/null)"
+    if [ -n "$git_toplevel" ] && [ "$git_toplevel" != "$AL_REPO" ]; then
+      worktree_dir="$git_toplevel"
+    else
+      worktree_dir="$(tmux display-message -p '#{session_path}' 2>/dev/null)"
+    fi
+  fi
+
+  # Resolve to absolute path early
+  if [ -n "$worktree_dir" ]; then
+    if [ ! -d "$worktree_dir" ]; then
+      echo "Directory not found: $worktree_dir"
+      return 1
+    fi
+    worktree_dir="$(realpath "$worktree_dir")"
+  fi
+
+  if [ -z "$worktree_dir" ] || [ "$worktree_dir" = "$AL_REPO" ]; then
+    echo "Usage: alwt2-stop [--force] [worktree-dir]  (or run from within a worktree tmux session)"
+    return 1
+  fi
+
+  echo "Will remove worktree: $worktree_dir"
+  printf "Continue? [y/N] "
+  read -r confirm
+  if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
+    echo "Aborted."
+    return 1
+  fi
+
+  local session_name="$(basename "$worktree_dir")"
+  if ! tmux has-session -t "$session_name" 2>/dev/null; then
+    echo "No tmux session '$session_name' found, running cleanup only"
+    bash "$AL_WT_SCRIPT_DIR/bin/cleanup-worktree.sh" $force "$worktree_dir"
+    return
+  fi
+
+  local windows
+  windows=$(tmux list-windows -t "$session_name" -F '#{window_id}')
+  for w in $windows; do
+    tmux kill-window -t "$w" 2>/dev/null
+  done
+
+  tmux new-window -t "$session_name" -n "cleanup" -c "$AL_WT_SCRIPT_DIR" \
+    "bash bin/cleanup-worktree.sh $force '$worktree_dir'; echo; echo 'Press enter to close session...'; read; tmux switch-client -l 2>/dev/null; tmux kill-session -t '$session_name'"
+  tmux select-window -t "$session_name:cleanup"
+  if [ -n "$TMUX" ]; then
+    tmux switch-client -t "$session_name"
+  else
+    tmux attach-session -t "$session_name"
+  fi
+}
+
+# ── Auto-reload shell config ────────────────────────────────
+# When ~/.shell-auto-reload is touched, all open shells re-source on next prompt.
+# chezmoi apply touches this file automatically via run_onchange script.
+_SHELL_RELOAD_FILE="$HOME/.shell-auto-reload"
+_SHELL_RELOAD_MTIME=""
+_shell_reload_check() {
+  local mtime
+  if [ -f "$_SHELL_RELOAD_FILE" ]; then
+    mtime="$(stat -f %m "$_SHELL_RELOAD_FILE" 2>/dev/null)"
+  else
+    return
+  fi
+  if [ -n "$_SHELL_RELOAD_MTIME" ] && [ "$mtime" != "$_SHELL_RELOAD_MTIME" ]; then
+    _SHELL_RELOAD_MTIME="$mtime"
+    echo "[shellrc] Reloading config..."
+    source "$HOME/.${_CURRENT_SHELL}rc"
+    return
+  fi
+  _SHELL_RELOAD_MTIME="$mtime"
+}
+# Register the check for both zsh (precmd) and bash (PROMPT_COMMAND)
+if [ -n "$ZSH_VERSION" ]; then
+  autoload -Uz add-zsh-hook
+  add-zsh-hook precmd _shell_reload_check
+elif [ -n "$BASH_VERSION" ]; then
+  PROMPT_COMMAND="_shell_reload_check${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
+fi
+
+# ── Prompt (starship) ────────────────────────────────────────
+command -v starship >/dev/null && eval "$(starship init "$_CURRENT_SHELL")"

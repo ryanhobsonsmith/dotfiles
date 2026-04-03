@@ -1,0 +1,9 @@
+{{ if eq .chezmoi.os "darwin" -}}
+#!/bin/bash
+# Install pre-commit hooks for the chezmoi source repo
+if command -v pre-commit >/dev/null 2>&1; then
+  cd "{{ .chezmoi.sourceDir }}"
+  pre-commit install
+  echo "pre-commit hooks installed in chezmoi source dir."
+fi
+{{ end -}}
