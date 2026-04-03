@@ -14,18 +14,36 @@ apply:
     chezmoi diff || true
     chezmoi apply
 
-# Build the test Docker image
-build:
-    docker build -t {{image}} .
+# Resolve Dockerfile name for a distro
+[private]
+_dockerfile distro:
+    @echo "Dockerfile{{ if distro == "ubuntu" { "" } else { "." + distro } }}"
+
+# Build the test Docker image (platform: arm64, amd64; default: native)
+build distro="ubuntu" platform="":
+    docker build \
+        {{ if platform != "" { "--platform linux/" + platform } else { "" } }} \
+        -t {{image}}-{{distro}}{{ if platform != "" { "-" + platform } else { "" } }} \
+        -f Dockerfile{{ if distro == "ubuntu" { "" } else { "." + distro } }} .
 
 # Rebuild from scratch (no cache)
-rebuild:
-    docker build --no-cache -t {{image}} .
+rebuild distro="ubuntu" platform="":
+    docker build --no-cache \
+        {{ if platform != "" { "--platform linux/" + platform } else { "" } }} \
+        -t {{image}}-{{distro}}{{ if platform != "" { "-" + platform } else { "" } }} \
+        -f Dockerfile{{ if distro == "ubuntu" { "" } else { "." + distro } }} .
 
 # Run tests in a clean container
-test: build
-    docker run --rm {{image}}
+test distro="ubuntu" platform="": (build distro platform)
+    docker run --rm \
+        {{ if platform != "" { "--platform linux/" + platform } else { "" } }} \
+        {{image}}-{{distro}}{{ if platform != "" { "-" + platform } else { "" } }}
+
+# Run tests on all supported distro/platform combinations
+test-all: (test "ubuntu") (test "ubuntu" "amd64") (test "arch" "amd64")
 
 # Launch an interactive shell in a clean container
-shell: build
-    docker run --rm -it {{image}} /bin/zsh
+shell distro="ubuntu" platform="": (build distro platform)
+    docker run --rm -it \
+        {{ if platform != "" { "--platform linux/" + platform } else { "" } }} \
+        {{image}}-{{distro}}{{ if platform != "" { "-" + platform } else { "" } }} /bin/zsh

@@ -1,22 +1,21 @@
-FROM ubuntu:24.04
+FROM archlinux:latest
+
+# Disable pacman sandbox — seccomp doesn't work under qemu emulation on arm64 hosts
+RUN sed -i 's/^#\?DisableSandbox.*/DisableSandbox/' /etc/pacman.conf \
+    || echo 'DisableSandbox' >> /etc/pacman.conf
 
 # Bootstrap only — just enough to run chezmoi. Everything else is installed
 # by run_onchange_before_install-packages.sh.tmpl to test that it works.
-RUN apt-get update && apt-get install -y \
+RUN pacman -Syu --noconfirm \
     curl \
     git \
-    locales \
     sudo \
-    && rm -rf /var/lib/apt/lists/*
-
-# Set up UTF-8 locale (needed for Unicode/Nerd Font glyphs in tmux)
-RUN sed -i '/en_US.UTF-8/s/^# //' /etc/locale.gen && locale-gen
-ENV LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
+    && pacman -Scc --noconfirm
 
 # Install chezmoi
 RUN sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
 
-# Create a test user with sudo access (needed for apt-get in run scripts)
+# Create a test user with sudo access (needed for pacman in run scripts)
 RUN useradd -m -s /bin/bash testuser \
     && echo "testuser ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 USER testuser
