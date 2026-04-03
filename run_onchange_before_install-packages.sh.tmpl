@@ -47,16 +47,8 @@ sudo apt-get install -y \
 {{ end -}}
   ;
 
-{{ else if eq .chezmoi.osRelease.id "arch" -}}
-if ! command -v yay >/dev/null 2>&1; then
-  echo "yay not found. Installing..."
-  sudo pacman -S --needed --noconfirm base-devel git
-  git clone https://aur.archlinux.org/yay.git /tmp/yay-install
-  (cd /tmp/yay-install && makepkg -si --noconfirm)
-  rm -rf /tmp/yay-install
-fi
-
-yay -S --needed --noconfirm \
+{{ else if or (eq .chezmoi.osRelease.id "arch") (eq .chezmoi.osRelease.id "endeavouros") -}}
+sudo pacman -Syu --needed --noconfirm \
 {{ range .packages.common -}}
   {{ . }} \
 {{ end -}}
@@ -67,7 +59,7 @@ yay -S --needed --noconfirm \
 
 {{ end -}}
 
-# Install starship prompt (not in apt/pacman)
+# Install starship prompt (not in apt/pacman — Arch installs it above)
 if ! command -v starship >/dev/null 2>&1; then
   echo "Installing starship..."
   curl -sS https://starship.rs/install.sh | sh -s -- -y

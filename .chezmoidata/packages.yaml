@@ -3,7 +3,6 @@ packages:
   common:
     - curl
     - direnv
-    - fd
     - fzf
     - git
     - just
@@ -16,7 +15,10 @@ packages:
   darwin:
     brews:
       - age
+      - fd
       - fnm
+      - gitleaks
+      - pre-commit
       - rbenv
       - starship
     casks:
@@ -24,7 +26,12 @@ packages:
       - font-hack
 
   # Arch-only overrides or additions
-  arch: []
+  arch:
+    - fd
+    - starship
+    - unzip
 
   # Debian/Ubuntu-only overrides or additions
-  debian: []
+  debian:
+    - fd-find
+    - unzip
