@@ -36,6 +36,7 @@ done
 # Cursor shape: beam for insert, block for normal (works in tmux via passthrough)
 # Starship handles the symbol change (❯/❮) and color; we handle cursor shape
 _set_cursor() {
+  [[ -n "$NVIM" ]] && return
   if [[ -n "$TMUX" ]]; then
     printf '\ePtmux;\e\e[%s q\e\\' "$1"
   else

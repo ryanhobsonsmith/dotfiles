@@ -26,7 +26,7 @@ export GOPATH="$HOME/go"
 export BUN_INSTALL="$HOME/.bun"
 export PNPM_HOME="$HOME/Library/pnpm"
 
-path_prepend() { case ":$PATH:" in *":$1:"*) ;; *) export PATH="$1:$PATH" ;; esac; }
+path_prepend() { case ":$PATH:" in *":$1:"*) ;; *) export PATH="$1:$PATH" ;; esac }
 
 path_prepend "$HOME/.local/share/fnm"
 path_prepend "$HOME/.local/bin"
@@ -118,8 +118,8 @@ aws_sso_auth() {
   local profile="default"
   for arg in "$@"; do
     case $arg in
-      --profile=*) profile="${arg#*=}" ;;
-      *) profile="$arg" ;;
+    --profile=*) profile="${arg#*=}" ;;
+    *) profile="$arg" ;;
     esac
   done
   echo "Forcing AWS SSO re-auth for profile: $profile"
@@ -136,7 +136,10 @@ aws_al_auth() {
 # ── Tmux session management ─────────────────────────────────
 cts() {
   local dir="${1:-.}"
-  dir="$(cd "$dir" && pwd)" || { echo "Invalid directory: $dir"; return 1; }
+  dir="$(cd "$dir" && pwd)" || {
+    echo "Invalid directory: $dir"
+    return 1
+  }
   local session_name="$(basename "$dir")"
   local sh="$(basename "$SHELL")"
 
@@ -167,14 +170,17 @@ alwt() {
   # If no branch name given, detect from current directory
   if [ $# -eq 0 ] || { [ $# -eq 1 ] && [ "$1" = "." ]; }; then
     local git_root
-    git_root="$(git rev-parse --show-toplevel 2>/dev/null)" || { echo "Not in a git repo"; return 1; }
+    git_root="$(git rev-parse --show-toplevel 2>/dev/null)" || {
+      echo "Not in a git repo"
+      return 1
+    }
     cts "$git_root"
     return
   fi
   # Parse branch name (last non-flag argument) for cts
   local branch_name=""
   for arg in "$@"; do
-    case "$arg" in -b|-n|--neon-parent-branch) ;; *) branch_name="$arg" ;; esac
+    case "$arg" in -b | -n | --neon-parent-branch) ;; *) branch_name="$arg" ;; esac
   done
   local worktree_dir
   # Support passing a full path to an existing worktree
@@ -193,8 +199,14 @@ alwt-stop() {
   local force="" worktree_dir=""
   while [ $# -gt 0 ]; do
     case "$1" in
-      --force|-f) force="--force"; shift ;;
-      *) worktree_dir="$1"; shift ;;
+    --force | -f)
+      force="--force"
+      shift
+      ;;
+    *)
+      worktree_dir="$1"
+      shift
+      ;;
     esac
   done
   # Resolve worktree: explicit arg > cwd if it's a worktree > active tmux session
@@ -242,13 +254,16 @@ alwt-stop() {
 }
 
 # ── Algebra Labs worktree management (v2 — uses wt:setup) ──
-AL_WT_BASE_REF="worktree-improvements"  # TODO: change to "main" after merge
-AL_WT_SCRIPT_DIR="$HOME/algebralabs/worktree-improvements"  # TODO: change to "$AL_REPO" after merge
+AL_WT_BASE_REF="worktree-improvements"                     # TODO: change to "main" after merge
+AL_WT_SCRIPT_DIR="$HOME/algebralabs/worktree-improvements" # TODO: change to "$AL_REPO" after merge
 
 alwt2() {
   if [ $# -eq 0 ] || { [ $# -eq 1 ] && [ "$1" = "." ]; }; then
     local git_root
-    git_root="$(git rev-parse --show-toplevel 2>/dev/null)" || { echo "Not in a git repo"; return 1; }
+    git_root="$(git rev-parse --show-toplevel 2>/dev/null)" || {
+      echo "Not in a git repo"
+      return 1
+    }
     cts "$git_root"
     return
   fi
@@ -274,8 +289,14 @@ alwt2-stop() {
   local force="" worktree_dir=""
   while [ $# -gt 0 ]; do
     case "$1" in
-      --force|-f) force="--force"; shift ;;
-      *) worktree_dir="$1"; shift ;;
+    --force | -f)
+      force="--force"
+      shift
+      ;;
+    *)
+      worktree_dir="$1"
+      shift
+      ;;
     esac
   done
 
@@ -343,8 +364,8 @@ _shell_reload_check() {
   local mtime
   if [ -f "$_SHELL_RELOAD_FILE" ]; then
     case "$_CURRENT_OS" in
-      Darwin) mtime="$(stat -f %m "$_SHELL_RELOAD_FILE")" ;;
-      *)      mtime="$(stat -c %Y "$_SHELL_RELOAD_FILE")" ;;
+    Darwin) mtime="$(stat -f %m "$_SHELL_RELOAD_FILE")" ;;
+    *) mtime="$(stat -c %Y "$_SHELL_RELOAD_FILE")" ;;
     esac
   else
     return
