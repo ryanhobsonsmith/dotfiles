@@ -30,6 +30,11 @@ sudo apt-get install -y \
   zoxide \
   zsh
 
+# fd-find installs as 'fdfind' on Ubuntu — symlink to 'fd'
+if command -v fdfind >/dev/null 2>&1 && ! command -v fd >/dev/null 2>&1; then
+  sudo ln -sf "$(which fdfind)" /usr/local/bin/fd
+fi
+
 # tmux — build from source (apt version lags behind)
 echo "Installing tmux from source..."
 bash "$(_find_script build-tmux.sh)"
