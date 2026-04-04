@@ -56,4 +56,5 @@ done
 
 printf '%s' "$result" > "$cache_file"
 # Also store in tmux option for #{E:} expansion (per-client #S resolution)
-tmux set -g @session_bar "$result" 2>/dev/null || true
+tmux set -g @session_bar "$result" 2>/dev/null
+exit 0
