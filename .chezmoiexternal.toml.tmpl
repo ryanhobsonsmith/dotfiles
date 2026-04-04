@@ -1,8 +1,18 @@
+{{- $ssh := gt (len (glob (joinPath .chezmoi.homeDir ".ssh/id_*"))) 0 -}}
+
 [".tmux/plugins/tpm"]
     type = "git-repo"
+{{- if $ssh }}
+    url = "git@github.com:tmux-plugins/tpm.git"
+{{- else }}
     url = "https://github.com/tmux-plugins/tpm.git"
+{{- end }}
 
 [".config/nvim"]
     type = "git-repo"
+{{- if $ssh }}
+    url = "git@github.com:ryanhobsonsmith/nvim-config.git"
+{{- else }}
     url = "https://github.com/ryanhobsonsmith/nvim-config.git"
+{{- end }}
     refreshPeriod = "168h"

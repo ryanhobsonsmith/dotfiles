@@ -365,5 +365,24 @@ elif [ -n "$BASH_VERSION" ]; then
   PROMPT_COMMAND="_shell_reload_check${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
 fi
 
+# ── Terminal title (hostname + cwd) ─────────────────────────
+# Shows "host:~/path" when SSH'd, just "~/path" when local.
+# Updates on each prompt via precmd/PROMPT_COMMAND.
+_update_terminal_title() {
+  local title
+  if [ -n "$SSH_CONNECTION" ]; then
+    title="$(hostname -s):${PWD/#$HOME/~}"
+  else
+    title="${PWD/#$HOME/~}"
+  fi
+  printf '\e]0;%s\a' "$title"
+}
+if [ -n "$ZSH_VERSION" ]; then
+  autoload -Uz add-zsh-hook
+  add-zsh-hook precmd _update_terminal_title
+elif [ -n "$BASH_VERSION" ]; then
+  PROMPT_COMMAND="_update_terminal_title${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
+fi
+
 # ── Prompt (starship) ────────────────────────────────────────
 command -v starship >/dev/null && eval "$(starship init "$_CURRENT_SHELL")"

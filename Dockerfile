@@ -25,7 +25,8 @@ WORKDIR /home/testuser
 # Copy chezmoi source state
 COPY --chown=testuser:testuser . /home/testuser/.local/share/chezmoi
 
-# Init and apply (run_onchange_before_ installs packages automatically)
+# Install packages, then apply dotfiles
+RUN bash ~/.local/share/chezmoi/scripts/executable_install-ubuntu.sh
 RUN chezmoi init && chezmoi apply --force
 
 # Verify expected files and tools
