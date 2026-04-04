@@ -10,7 +10,7 @@ ssh_symbol = ' '
 
 [custom.container]
 when = '[ -f /.dockerenv ] || [ -n "$container" ]'
-symbol = '󰡨 '
+symbol = ' '
 format = '[$symbol]($style)'
 style = 'bold cyan'
 
