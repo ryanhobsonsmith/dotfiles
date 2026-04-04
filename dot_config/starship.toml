@@ -1,12 +1,18 @@
 # Minimal starship config — Tokyo Night inspired
 
-format = """$hostname$directory$git_branch$git_status$cmd_duration$line_break$character"""
+format = """$hostname${custom.container}$directory$git_branch$git_status$cmd_duration$line_break$character"""
 
 [hostname]
 ssh_only = true
 format = '[$ssh_symbol$hostname]($style) '
 style = 'bold yellow'
 ssh_symbol = '󰣀 '
+
+[custom.container]
+when = '[ -f /.dockerenv ] || [ -n "$container" ]'
+symbol = '󰡨 '
+format = '[$symbol]($style)'
+style = 'bold cyan'
 
 [character]
 success_symbol = '[❯](bold green)'

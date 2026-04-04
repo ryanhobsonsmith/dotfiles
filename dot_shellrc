@@ -369,11 +369,14 @@ fi
 # Shows "host:~/path" when SSH'd, just "~/path" when local.
 # Updates on each prompt via precmd/PROMPT_COMMAND.
 _update_terminal_title() {
-  local title
+  local title prefix=""
+  if [ -f /.dockerenv ] || [ -n "$container" ]; then
+    prefix="[container] "
+  fi
   if [ -n "$SSH_CONNECTION" ]; then
-    title="$(hostname -s):${PWD/#$HOME/~}"
+    title="${prefix}$(hostname -s):${PWD/#$HOME/~}"
   else
-    title="${PWD/#$HOME/~}"
+    title="${prefix}${PWD/#$HOME/~}"
   fi
   printf '\e]0;%s\a' "$title"
 }
