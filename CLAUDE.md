@@ -105,6 +105,7 @@ Some config files are edited by their applications (e.g., Claude Code, Karabiner
 - Hex color codes (`#rrggbb`) inside `#{S:}` work fine — earlier issues were likely from other format nesting problems, not the hex codes themselves
 - `session_attached` flag is true for **any** session with a client connected (not just the current one) — avoid using it to highlight the "active" session when multiple clients may be attached
 - `#()` shell expansions inside catppuccin window pills (`@catppuccin_window_text`) cause pill backgrounds to missize — use tmux window options + format conditionals (`#{?#{==:#{@var},...}}`) instead
+- **Special characters in tmux conf files:** The Write/Edit tools silently strip powerline glyphs (U+E0B4 ``, U+E0B6 ``) and nerd font icons. When editing tmux conf files that contain these characters, use `printf` with hex escape sequences via the Bash tool instead. Key bytes: left roundcap `` = `\xee\x82\xb6`, right roundcap `` = `\xee\x82\xb4`, keyboard `󰌌` = `\xf3\xb0\x8c\x8c`, computer `󰲝` = `\xf3\xb0\xb2\x9d`, globe `󰖟` = `\xf3\xb0\x96\x9f`, docker `󰡨` = `\xf3\xb0\xa1\xa8`. Always verify with `xxd` after writing.
 
 ### Claude Code Status Integration
 

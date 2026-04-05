@@ -1,7 +1,7 @@
 keybind = global:cmd+;=toggle_quick_terminal
 keybind = cmd+shift+r=prompt_tab_title
 font-family = Hack
-font-size = 14
+font-size = {{ if eq .chezmoi.hostname "rhs-endeavour" }}10{{ else }}14{{ end }}
 
 theme = TokyoNight Night
 
