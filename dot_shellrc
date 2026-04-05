@@ -301,12 +301,16 @@ fi
 # ── Terminal title (hostname + cwd) ─────────────────────────
 # Shows "host:~/path" when SSH'd, just "~/path" when local.
 # Updates on each prompt via precmd/PROMPT_COMMAND.
+# Falls back to tmux global env for SSH_CONNECTION (detect-remote.sh propagates it).
 _update_terminal_title() {
-  local title prefix=""
+  local title prefix="" is_ssh="$SSH_CONNECTION"
   if [ -f /.dockerenv ] || [ -n "$container" ]; then
     prefix="[container] "
   fi
-  if [ -n "$SSH_CONNECTION" ]; then
+  if [ -z "$is_ssh" ] && [ -n "$TMUX" ]; then
+    is_ssh=$(tmux show-environment -g SSH_CONNECTION 2>/dev/null | grep -v '^-' | cut -d= -f2-)
+  fi
+  if [ -n "$is_ssh" ]; then
     title="${prefix}$(hostname -s):${PWD/#$HOME/~}"
   else
     title="${prefix}${PWD/#$HOME/~}"
