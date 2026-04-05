@@ -18,6 +18,7 @@ sudo pacman -Syu --needed --noconfirm \
   starship \
   tmux \
   unzip \
+  xclip \
   zoxide \
   zsh
 

@@ -28,6 +28,7 @@ sudo apt-get install -y \
   git-delta \
   just \
   unzip \
+  xclip \
   zoxide \
   zsh
 

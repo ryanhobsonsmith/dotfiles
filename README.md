@@ -24,6 +24,7 @@ Personal dotfiles managed with [chezmoi](https://www.chezmoi.io/).
 | [starship](https://starship.rs/) | `brew install starship` | Shell prompt |
 | [Claude Code](https://claude.ai/code) | `npm install -g @anthropic-ai/claude-code` | `cts` dev layout |
 | [just](https://github.com/casey/just) | `brew install just` | Task runner (justfile) |
+| [xclip](https://github.com/astrand/xclip) | `apt install xclip` / `pacman -S xclip` | Clipboard image paste in tmux (Linux only) |
 | [docker](https://www.docker.com/) | Docker Desktop | Testing chezmoi config |
 | [Karabiner-Elements](https://karabiner-elements.pqrs.org/) | `brew install karabiner-elements` | Key remapping, app hotkeys |
 

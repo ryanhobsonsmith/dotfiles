@@ -18,6 +18,7 @@ command -v tmux && echo "OK: tmux installed"
 command -v direnv && echo "OK: direnv installed"
 command -v nvim && echo "OK: neovim installed"
 command -v starship && echo "OK: starship installed"
+if [ "$(uname)" = "Linux" ]; then command -v xclip && echo "OK: xclip installed"; fi
 test -f ~/.config/starship.toml && echo "OK: starship.toml"
 test -d ~/.config/nvim && echo "OK: nvim config"
 echo "=== All checks passed ==="
