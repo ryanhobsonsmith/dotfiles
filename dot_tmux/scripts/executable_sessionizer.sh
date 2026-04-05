@@ -133,10 +133,9 @@ elif [ -d "$selected" ]; then
   sh="$(basename "$SHELL")"
 
   if ! tmux has-session -t "=$session_name" 2>/dev/null; then
-    tmux new-session -d -s "$session_name" -c "$dir" -n "nvim" "$sh -ic 'nvim; exec $sh'"
-    tmux new-window -t "$session_name:" -c "$dir" -n "zsh"
+    tmux new-session -d -s "$session_name" -c "$dir" -n "zsh"
     tmux new-window -t "$session_name:" -c "$dir" -n "claude" "$sh -ic 'claude; exec $sh'"
-    tmux select-window -t "$session_name:nvim"
+    tmux select-window -t "$session_name:zsh"
   fi
   tmux switch-client -t "=$session_name"
 fi
