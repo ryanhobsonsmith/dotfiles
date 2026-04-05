@@ -12,6 +12,7 @@ sudo pacman -Syu --needed --noconfirm \
   fzf \
   ripgrep \
   git \
+  git-delta \
   just \
   neovim \
   starship \
@@ -34,6 +35,12 @@ if command -v fnm >/dev/null 2>&1; then
     fnm install --lts
     fnm default lts-latest
   fi
+fi
+
+# Set default shell to zsh
+if [ "$SHELL" != "$(which zsh)" ]; then
+  echo "Setting default shell to zsh..."
+  sudo chsh -s "$(which zsh)" "$(whoami)"
 fi
 
 echo "Arch install complete."

@@ -47,6 +47,18 @@ chezmoi doctor                # Check setup health
 | `modify_` | Modify existing file |
 | `symlink_` | Create a symlink (content = target path) |
 
+## Package Installation
+
+When adding a new required tool/package, update **all four** places:
+
+1. **`README.md`** — add to the Required (or Optional) tools table
+2. **`scripts/executable_install-macos.sh`** — add to the `brew bundle` heredoc
+3. **`scripts/executable_install-ubuntu.sh`** — add to the `apt-get install` list (or install from source/releases if apt version is too old)
+4. **`scripts/executable_install-arch.sh`** — add to the `pacman -Syu` list
+5. **`test.sh`** — add a `command -v <tool>` verification check
+
+Note: package names may differ across package managers (e.g. `git-delta` on brew/apt/pacman, but the binary is `delta`).
+
 ## Shell Config Structure
 
 Shell configuration is split into shared and shell-specific files:

@@ -50,7 +50,8 @@ export KUBECONFIG="$HOME/.kube/config:$HOME/smack/infra/smack-demo-cluster.json"
 
 # ── Aliases ──────────────────────────────────────────────────
 alias pn='pnpm'
-alias erc='(cd ~/.local/share/chezmoi && nvim .)'
+alias cmce='(cd ~/.local/share/chezmoi && nvim .)'
+alias nvce='(cd ~/.config/nvim && nvim .)'
 alias rrc='exec zsh'
 alias rtc='tmux source-file ~/.tmux.conf && echo "Config reloaded!"'
 alias k='kubectl'
@@ -75,14 +76,16 @@ alias gcm='git commit -m'
 alias gco='git checkout'
 alias gsw='git switch'
 alias gb='git branch'
-alias glog='git log --oneline --graph --decorate'
+alias gl='git log --oneline --graph --decorate'
 alias grb='git rebase'
 alias gstash='git stash'
-alias gstat='git status'
 alias gca='git commit --amend --no-edit'
 alias gcam='git commit --amend -m'
-alias gp='git push'
-alias gpl='git pull'
+alias gp='git pull'
+alias gP='git push'
+alias gs='git status -sb'
+alias gd='git diff'
+alias gdi='git -c delta.side-by-side=false diff'
 
 # display input switching
 alias sdi="set-display-inputs"
@@ -100,6 +103,7 @@ alias cmcd='cd ~/.local/share/chezmoi'
 alias cmd="chezmoi diff"
 alias cmg="chezmoi git"
 alias nvcd='cd ~/.config/nvim'
+cmsync() { git -C ~/.local/share/chezmoi pull && chezmoi apply -R; }
 
 # ── Functions ────────────────────────────────────────────────
 wip() {

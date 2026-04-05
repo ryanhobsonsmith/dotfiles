@@ -16,6 +16,7 @@ Personal dotfiles managed with [chezmoi](https://www.chezmoi.io/).
 | [Hack](https://sourcefoundry.org/hack/) | `brew install font-hack` | Primary font (Ghostty uses built-in Nerd Font fallback for icons) |
 | [tmux](https://github.com/tmux/tmux) | `brew install tmux` | Terminal multiplexer |
 | [git](https://git-scm.com/) | `brew install git` | TPM install, chezmoi |
+| [delta](https://github.com/dandavison/delta) | `brew install git-delta` | Git diff pager (side-by-side, syntax highlighting) |
 | [fzf](https://github.com/junegunn/fzf) | `brew install fzf` | `ts`, tmux-sessionx |
 | [fnm](https://github.com/Schniz/fnm) | `brew install fnm` | Node.js version management |
 | [direnv](https://direnv.net/) | `brew install direnv` | Per-directory env vars |

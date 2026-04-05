@@ -7,3 +7,19 @@
 	default = current
 [init]
 	defaultBranch = main
+[core]
+	pager = delta
+[interactive]
+	diffFilter = delta --color-only
+[delta]
+	navigate = true
+	side-by-side = true
+	line-numbers = true
+	tabs = 2
+	file-style = bold yellow
+	file-decoration-style = yellow ol ul
+	hunk-header-decoration-style = none
+[merge]
+	conflictstyle = diff3
+[diff]
+	colorMoved = default

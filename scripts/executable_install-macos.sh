@@ -20,6 +20,7 @@ brew "fnm"
 brew "ripgrep"
 brew "fzf"
 brew "git"
+brew "git-delta"
 brew "gitleaks"
 brew "just"
 brew "neovim"
@@ -41,6 +42,12 @@ if command -v fnm >/dev/null 2>&1; then
     fnm install --lts
     fnm default lts-latest
   fi
+fi
+
+# Set default shell to zsh
+if [ "$SHELL" != "$(which zsh)" ]; then
+  echo "Setting default shell to zsh..."
+  chsh -s "$(which zsh)"
 fi
 
 echo "macOS install complete."
