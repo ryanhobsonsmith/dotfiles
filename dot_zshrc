@@ -49,6 +49,11 @@ autoload -Uz add-zle-hook-widget
 add-zle-hook-widget zle-keymap-select _cursor_keymap_select
 add-zle-hook-widget zle-line-init _cursor_line_init
 
+# ── Ctrl-D: don't exit shell inside tmux ────────────────────
+# Outside tmux, Ctrl-D on an empty line still exits (useful for closing
+# nested shells / SSH sessions). Inside tmux, use `exit` instead.
+[[ -n "$TMUX" ]] && setopt IGNORE_EOF
+
 # ── Completions (cached — regenerates once per day) ──────────
 if type brew &>/dev/null; then
   FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
