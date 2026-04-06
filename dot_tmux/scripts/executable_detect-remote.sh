@@ -17,6 +17,6 @@ if [ $? -eq 0 ] && [ -n "$ssh_val" ] && [[ "$ssh_val" != -* ]]; then
   tmux set-environment -g SSH_CONNECTION "${ssh_val#*=}"
   tmux source-file ~/.tmux/scripts/catppuccin-prefix-ssh.conf
 else
-  tmux set-environment -gr SSH_CONNECTION 2>/dev/null
+  tmux set-environment -gr SSH_CONNECTION 2>/dev/null || true
   tmux source-file ~/.tmux/scripts/catppuccin-prefix.conf
 fi
