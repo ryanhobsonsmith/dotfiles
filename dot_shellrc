@@ -52,6 +52,7 @@ export KUBECONFIG="$HOME/.kube/config:$HOME/smack/infra/smack-demo-cluster.json"
 alias pn='pnpm'
 alias cmce='(cd ~/.local/share/chezmoi && nvim .)'
 alias nvce='(cd ~/.config/nvim && nvim .)'
+alias nvclear='rm -rf ~/.cache/nvim && echo "Neovim cache cleared"'
 alias rrc='exec zsh'
 alias rtc='tmux source-file ~/.tmux.conf && echo "Config reloaded!"'
 alias k='kubectl'

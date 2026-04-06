@@ -1,12 +1,15 @@
 keybind = global:cmd+;=toggle_quick_terminal
 keybind = cmd+shift+r=prompt_tab_title
 font-family = Hack
-font-size = {{ if eq .chezmoi.hostname "rhs-endeavour" }}10{{ else }}14{{ end }}
+font-size = {{ if eq .chezmoi.hostname "rhs-endeavour" }}10{{ else }}13{{ end }}
+confirm-close-surface = false
 
 theme = TokyoNight Night
 
 window-save-state = never
+window-decoration = false
 link-url = true
+font-thicken = {{ if eq .chezmoi.os "darwin" }}true{{ else }}false{{ end }}
 
 adjust-cell-height = +10%
 
