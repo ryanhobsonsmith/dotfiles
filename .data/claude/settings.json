@@ -35,7 +35,7 @@
         ]
       }
     ],
-    "PermissionRequest": [
+    "PostToolUse": [
       {
         "matcher": "*",
         "hooks": [

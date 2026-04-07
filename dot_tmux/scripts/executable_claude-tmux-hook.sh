@@ -16,6 +16,7 @@ STATE_FILE="${STATE_DIR}/pane-${PANE_ID//[^a-zA-Z0-9_%]/_}.state"
 case "$EVENT" in
   UserPromptSubmit)  echo "working" > "$STATE_FILE" ;;
   PreToolUse)        echo "working" > "$STATE_FILE" ;;
+  PostToolUse)       echo "working" > "$STATE_FILE" ;;
   Stop)              echo "done" > "$STATE_FILE" ;;
   Notification)
     # notification_type: permission_prompt, idle_prompt, elicitation_dialog, auth_success
