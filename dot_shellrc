@@ -67,6 +67,9 @@ alias pa='eval $(poetry env activate)'
 alias epp='export PYTHONPATH=$(pwd)'
 alias prune-git='git branch --merged main | grep -vE "(^\*|main|master|$(git symbolic-ref --short HEAD))" | xargs -n 1 git branch -d'
 alias h2='$(npm prefix -s)/node_modules/.bin/shopify hydrogen'
+alias vi="nvim"
+alias v="nvim"
+alias vim="nvim"
 
 # git
 alias g='git'
