@@ -142,6 +142,19 @@ Shell config is split so that shared settings (env vars, aliases, functions like
 | Ctrl+Tab | Next window (no prefix needed) |
 | Alt+h/j/k/l | Switch pane (no prefix needed) |
 
+### Moving panes and windows
+
+Run via `prefix+:`. Target syntax is `session:window.pane` — a bare `1` means **pane 1**, use `:1` for **window 1**.
+
+| Command                       | Action                                           |
+| ----------------------------- | ------------------------------------------------ |
+| `join-pane -h -s :1`          | Join window 1 into current window as split      |
+| `join-pane -s other:2.1`      | Pull pane from another session                   |
+| `break-pane` (or `prefix+!`)  | Break current pane into its own window           |
+| `break-pane -d -t other:`     | Break pane into a window in another session      |
+| `move-window -t other:`       | Move whole window to another session             |
+| `prefix+Space` / `prefix+z`   | Cycle layouts / zoom pane                        |
+
 ### Tmux status bar
 
 Two-line status bar (Catppuccin Mocha theme):
