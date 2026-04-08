@@ -76,6 +76,7 @@ alias g='git'
 alias ga='git add'
 alias gaa='git add --all'
 alias gc='git commit'
+alias gacm="git add --all && git commit -m"
 alias gcm='git commit -m'
 alias gco='git checkout'
 alias gsw='git switch'
