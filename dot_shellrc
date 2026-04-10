@@ -39,7 +39,7 @@ path_prepend "$BUN_INSTALL/bin"
 path_prepend "/opt/homebrew/opt/openjdk/bin"
 path_prepend "/opt/homebrew/opt/openjdk@11/bin"
 path_prepend "/opt/homebrew/opt/postgresql@15/bin"
-
+path_prepend "/Users/rhsmith/.lmstudio/bin"
 case ":$PATH:" in *":$PNPM_HOME:"*) ;; *) export PATH="$PNPM_HOME:$PATH" ;; esac
 
 export ANDROID_HOME="$HOME/Library/Android/sdk"
@@ -142,6 +142,21 @@ aws_al_auth() {
   aws sso login --profile=al-prod
 }
 
+# ── Claude Code session resume ───────────────────────────────
+# Launch claude, resuming the most recent session in the current dir if one exists.
+# Claude stores sessions in ~/.claude/projects/<encoded-cwd>/*.jsonl where the
+# encoded cwd replaces both '/' and '.' with '-'.
+claude_resume() {
+  local encoded="${PWD//\//-}"
+  encoded="${encoded//./-}"
+  local proj_dir="$HOME/.claude/projects/$encoded"
+  if ls "$proj_dir"/*.jsonl >/dev/null 2>&1; then
+    claude --continue
+  else
+    claude
+  fi
+}
+
 # ── Tmux session management ─────────────────────────────────
 cts() {
   local dir="${1:-.}"
@@ -154,7 +169,7 @@ cts() {
 
   if ! tmux has-session -t "=$session_name" 2>/dev/null; then
     tmux new-session -d -s "$session_name" -c "$dir" -n "zsh"
-    tmux new-window -t "$session_name:" -c "$dir" -n "claude" "$sh -ic 'claude; exec $sh'"
+    tmux new-window -t "$session_name:" -c "$dir" -n "claude" "$sh -ic 'claude_resume; exec $sh'"
     tmux select-window -t "$session_name:zsh"
   fi
 
