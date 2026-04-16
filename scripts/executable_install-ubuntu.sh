@@ -26,6 +26,7 @@ sudo apt-get install -y \
   ripgrep \
   git \
   git-delta \
+  jq \
   just \
   unzip \
   xclip \

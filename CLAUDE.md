@@ -71,7 +71,9 @@ When adding new config, put it in `.shellrc` if it works in both shells. Only us
 
 ## App-Managed Config (Symlinks)
 
-Some config files are edited by their applications (e.g., Claude Code, Karabiner, VS Code). These are managed as **symlinks** so changes stay in sync without needing `chezmoi re-add`.
+Some config files are edited by their applications (e.g., Claude Code, VS Code). These are managed as **symlinks** so changes stay in sync without needing `chezmoi re-add`.
+
+Karabiner is the exception: it does atomic writes that replace the symlink with a regular file, so its config is managed via a `modify_` merge script instead (see below).
 
 ### How it works
 
@@ -88,13 +90,23 @@ Some config files are edited by their applications (e.g., Claude Code, Karabiner
 | `~/.claude/settings.json` | `.data/claude/settings.json` |
 | `~/.claude/keybindings.json` | `.data/claude/keybindings.json` |
 | `~/.claude/hooks/block-home-dir.sh` | `.data/claude/hooks/block-home-dir.sh` |
-| `~/.config/karabiner/karabiner.json` | `.data/karabiner/karabiner.json` |
 
-### When to use symlinks vs copies vs modify templates
+### Karabiner (modify_ script)
 
-- **Symlinks** — for files apps frequently edit and you want the full file tracked (Claude, Karabiner, VS Code settings)
-- **Copies** (default) — for files you control entirely (shell config, gitconfig)
-- **Modify templates** (`modify_` + `setValueAtPath`) — for files where you only want to enforce specific keys while letting the app manage the rest. Uses `fromJson`/`toJson` pipeline to surgically set values without overwriting other keys.
+`~/.config/karabiner/karabiner.json` is merged on every `chezmoi apply` by `dot_config/private_karabiner/modify_private_karabiner.json`. The script:
+
+1. Reads the live file via stdin (or bootstraps a minimal skeleton on first apply).
+2. Uses `jq` to replace `profiles[0].complex_modifications.rules` with the union of our authored rules (from `.data/karabiner/desired-rules.json`) and any other rules Karabiner has added, matching by `description`.
+3. Leaves everything else untouched — `devices`, `virtual_hid_keyboard`, `global`, UI state, and any rules you didn't author stay as Karabiner wrote them.
+
+To change a hotkey or add a new rule, edit `.data/karabiner/desired-rules.json` and run `chezmoi apply`. Karabiner will pick up the new rules on its next config reload (or restart Karabiner-Elements).
+
+### When to use symlinks vs copies vs modify scripts vs modify templates
+
+- **Symlinks** — for files apps frequently edit and you want the full file tracked (Claude, VS Code settings). Doesn't work with apps that do atomic renames (Karabiner).
+- **Copies** (default) — for files you control entirely (shell config, gitconfig).
+- **Modify templates** (`modify_` + `setValueAtPath`) — for files where you only want to enforce a few scalar keys while letting the app manage the rest. Uses `fromJson`/`toJson` pipeline via Go templates.
+- **Modify scripts** (`modify_` + `jq`) — for files where you need to merge by identity into arrays (e.g., Karabiner rules merged by `description`). The script receives the current file on stdin and outputs the new contents.
 
 ## Tmux Config
 

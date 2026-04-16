@@ -13,6 +13,7 @@ sudo pacman -Syu --needed --noconfirm \
   ripgrep \
   git \
   git-delta \
+  jq \
   just \
   neovim \
   starship \

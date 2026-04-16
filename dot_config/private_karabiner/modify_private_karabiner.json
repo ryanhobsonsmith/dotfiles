@@ -1,0 +1,24 @@
+#!/bin/sh
+# chezmoi modify_ script: ensures our authored rules are present in karabiner.json
+# without overwriting fields Karabiner-Elements writes (devices, UI state, user edits).
+#
+# Stdin = current karabiner.json (empty on first apply). Stdout = new contents.
+# Rules are merged by `description`: ours replace matching entries, others kept as-is.
+
+set -eu
+
+src="${CHEZMOI_SOURCE_DIR:-$HOME/.local/share/chezmoi}"
+desired="$src/.data/karabiner/desired-rules.json"
+
+input="$(cat)"
+if [ -z "$input" ]; then
+    input='{"profiles":[{"name":"Default profile","selected":true,"complex_modifications":{"rules":[]}}]}'
+fi
+
+printf '%s' "$input" | jq --slurpfile desired "$desired" '
+    ($desired[0] | map(.description)) as $ours
+    | .profiles[0].complex_modifications.rules =
+        $desired[0]
+        + ((.profiles[0].complex_modifications.rules // [])
+            | map(select(.description as $d | $ours | index($d) | not)))
+'

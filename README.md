@@ -24,6 +24,7 @@ Personal dotfiles managed with [chezmoi](https://www.chezmoi.io/).
 | [starship](https://starship.rs/) | `brew install starship` | Shell prompt |
 | [Claude Code](https://claude.ai/code) | `npm install -g @anthropic-ai/claude-code` | `cts` dev layout |
 | [just](https://github.com/casey/just) | `brew install just` | Task runner (justfile) |
+| [jq](https://jqlang.org/) | `brew install jq` | Merging rules into `karabiner.json` on `chezmoi apply` |
 | [xclip](https://github.com/astrand/xclip) | `apt install xclip` / `pacman -S xclip` | Clipboard image paste in tmux (Linux only) |
 | [docker](https://www.docker.com/) | Docker Desktop | Testing chezmoi config |
 | [Karabiner-Elements](https://karabiner-elements.pqrs.org/) | `brew install karabiner-elements` | Key remapping, app hotkeys |
@@ -79,7 +80,7 @@ chezmoi update                 # pull from remote and apply
 | `.tmux.conf` | Tmux config (prefix `C-a`, vim bindings, Catppuccin Mocha, TPM plugins, two-line status bar) |
 | `.config/ghostty/config` | Ghostty terminal config (Hack font, keybindings) |
 | `.config/starship.toml` | Starship prompt config (minimal) |
-| `.config/karabiner/karabiner.json` | Karabiner key remapping and app hotkeys (symlinked) |
+| `.config/karabiner/karabiner.json` | Karabiner key remapping and app hotkeys (merge via `modify_` script — preserves device entries Karabiner writes) |
 | `.shellrc` | Shared shell config sourced by both zsh and bash (env, PATH, aliases, functions) |
 | `.zshrc` | Zsh-specific config (vi mode, history, completions, cursor shape, tool hooks) |
 | `.zprofile` | Zsh login profile (Homebrew, pipx PATH) |

@@ -28,6 +28,7 @@ export PNPM_HOME="$HOME/Library/pnpm"
 
 path_prepend() { case ":$PATH:" in *":$1:"*) ;; *) export PATH="$1:$PATH" ;; esac }
 
+path_prepend "$HOME/lib"
 path_prepend "$HOME/.local/share/fnm"
 path_prepend "$HOME/.local/bin"
 path_prepend "$HOME/.npm-global/bin"
@@ -93,11 +94,11 @@ alias gd='git diff'
 alias gdi='git -c delta.side-by-side=false diff'
 
 # display input switching
-alias sdi="set-display-inputs"
-alias mm1="set-display-inputs hdmi2 hdmi2"
-alias mm1dp="set-display-inputs hdmi2 dp"
-alias mdpdp="set-display-inputs dp dp"
-alias mlx="set-display-inputs dp hdmi1"
+alias sdi="set-display-inputs.sh"
+alias mm1="set-display-inputs.sh hdmi2 hdmi2"
+alias mm1dp="set-display-inputs.sh hdmi2 dp"
+alias mdpdp="set-display-inputs.sh dp dp"
+alias mlx="set-display-inputs.sh dp hdmi1"
 
 # chezmoi aliases
 alias cm="chezmoi"
@@ -108,6 +109,7 @@ alias cmcd='cd ~/.local/share/chezmoi'
 alias cmd="chezmoi diff"
 alias cmg="chezmoi git"
 alias nvcd='cd ~/.config/nvim'
+
 cmsync() { git -C ~/.local/share/chezmoi pull && chezmoi apply -R; }
 
 # Force re-auth of aws profile
@@ -267,6 +269,133 @@ alwt-stop() {
 
   tmux new-window -t "$session_name" -n "cleanup" -c "$AL_REPO" \
     "bash bin/cleanup-worktree.sh $force '$worktree_dir'; echo; echo 'Press enter to close session...'; read; tmux kill-session -t '$session_name'"
+  tmux select-window -t "$session_name:cleanup"
+  if [ -n "$TMUX" ]; then
+    tmux switch-client -t "$session_name"
+  else
+    tmux attach-session -t "$session_name"
+  fi
+}
+
+# ── Generic worktree management ─────────────────────────────
+# Works with any project that has bin/wt-setup.sh (and optional bin/wt-stop.sh).
+# Worktrees are placed in <repo>-worktrees/<branch> as siblings of the main repo.
+
+wt() {
+  if [ $# -eq 0 ] || { [ $# -eq 1 ] && [ "$1" = "." ]; }; then
+    local git_root
+    git_root="$(git rev-parse --show-toplevel 2>/dev/null)" || {
+      echo "Not in a git repo"
+      return 1
+    }
+    cts "$git_root"
+    return
+  fi
+
+  local branch_name="$1"
+
+  # Find the main worktree (first entry in git worktree list)
+  local main_repo
+  main_repo="$(git worktree list --porcelain 2>/dev/null | head -1 | sed 's/^worktree //')"
+  if [ -z "$main_repo" ]; then
+    main_repo="$(git rev-parse --show-toplevel 2>/dev/null)" || {
+      echo "Not in a git repo"
+      return 1
+    }
+  fi
+
+  local repo_name="$(basename "$main_repo")"
+  local worktree_dir
+
+  if [ -d "$branch_name" ]; then
+    worktree_dir="$(cd "$branch_name" && pwd)"
+  else
+    worktree_dir="$(dirname "$main_repo")/${repo_name}-worktrees/$branch_name"
+  fi
+
+  if [ ! -d "$worktree_dir" ]; then
+    (cd "$main_repo" && git worktree add -b "$branch_name" "$worktree_dir" "origin/main") || return 1
+  fi
+
+  if [ -x "$worktree_dir/bin/wt-setup.sh" ]; then
+    (cd "$worktree_dir" && bash bin/wt-setup.sh) || return 1
+  fi
+
+  cts "$worktree_dir"
+}
+
+wt-stop() {
+  local force="" worktree_dir=""
+  while [ $# -gt 0 ]; do
+    case "$1" in
+    --force | -f)
+      force="--force"
+      shift
+      ;;
+    *)
+      worktree_dir="$1"
+      shift
+      ;;
+    esac
+  done
+
+  # Resolve target worktree: explicit arg > current git root (if secondary) > tmux session path
+  if [ -z "$worktree_dir" ]; then
+    local git_toplevel main_wt
+    git_toplevel="$(git rev-parse --show-toplevel 2>/dev/null)"
+    main_wt="$(git worktree list --porcelain 2>/dev/null | head -1 | sed 's/^worktree //')"
+    if [ -n "$git_toplevel" ] && [ "$git_toplevel" != "$main_wt" ]; then
+      worktree_dir="$git_toplevel"
+    else
+      worktree_dir="$(tmux display-message -p '#{session_path}' 2>/dev/null)"
+    fi
+  fi
+
+  # Resolve to absolute path early
+  if [ -n "$worktree_dir" ]; then
+    if [ ! -d "$worktree_dir" ]; then
+      echo "Directory not found: $worktree_dir"
+      return 1
+    fi
+    worktree_dir="$(realpath "$worktree_dir")"
+  fi
+
+  # Verify it's actually a worktree (not the main repo)
+  local main_repo
+  main_repo="$(cd "$worktree_dir" 2>/dev/null && git worktree list --porcelain 2>/dev/null | head -1 | sed 's/^worktree //')"
+  if [ -z "$worktree_dir" ] || [ "$worktree_dir" = "$main_repo" ]; then
+    echo "Usage: wt-stop [--force] [worktree-dir]  (or run from within a worktree tmux session)"
+    return 1
+  fi
+
+  echo "Will remove worktree: $worktree_dir"
+  printf "Continue? [y/N] "
+  read -r confirm
+  if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
+    echo "Aborted."
+    return 1
+  fi
+
+  # Run project-specific stop script if it exists (from main repo)
+  if [ -n "$main_repo" ] && [ -x "$main_repo/bin/wt-stop.sh" ]; then
+    bash "$main_repo/bin/wt-stop.sh" "$worktree_dir" || true
+  fi
+
+  local session_name="$(basename "$worktree_dir")"
+  if ! tmux has-session -t "$session_name" 2>/dev/null; then
+    echo "No tmux session '$session_name' found, removing worktree only"
+    (cd "$main_repo" && git worktree remove $force "$worktree_dir")
+    return
+  fi
+
+  local windows
+  windows=$(tmux list-windows -t "$session_name" -F '#{window_id}')
+  for w in $windows; do
+    tmux kill-window -t "$w" 2>/dev/null
+  done
+
+  tmux new-window -t "$session_name" -n "cleanup" -c "$main_repo" \
+    "git worktree remove $force '$worktree_dir'; echo; echo 'Press enter to close session...'; read; tmux kill-session -t '$session_name'"
   tmux select-window -t "$session_name:cleanup"
   if [ -n "$TMUX" ]; then
     tmux switch-client -t "$session_name"
