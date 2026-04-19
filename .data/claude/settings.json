@@ -83,5 +83,6 @@
   },
   "alwaysThinkingEnabled": true,
   "effortLevel": "xhigh",
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": false,
+  "useAutoModeDuringPlan": false
 }
