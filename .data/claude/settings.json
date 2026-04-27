@@ -79,10 +79,14 @@
   },
   "enabledPlugins": {
     "gopls-lsp@claude-plugins-official": true,
-    "swift-lsp@claude-plugins-official": true
+    "swift-lsp@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": true,
+    "playwright@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true
   },
   "alwaysThinkingEnabled": true,
   "effortLevel": "xhigh",
-  "skipAutoPermissionPrompt": false,
+  "editorMode": "vim",
+  "agentPushNotifEnabled": true,
   "useAutoModeDuringPlan": false
 }

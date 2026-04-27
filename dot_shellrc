@@ -200,7 +200,16 @@ alwt() {
   fi
 
   if [ ! -d "$worktree_dir" ]; then
-    (cd "$AL_REPO" && git worktree add -b "$branch_name" "$worktree_dir" "origin/main") || return 1
+    (
+      cd "$AL_REPO" || exit 1
+      if git show-ref --verify --quiet "refs/heads/$branch_name"; then
+        git worktree add "$worktree_dir" "$branch_name"
+      elif git show-ref --verify --quiet "refs/remotes/origin/$branch_name"; then
+        git worktree add --track -b "$branch_name" "$worktree_dir" "origin/$branch_name"
+      else
+        git worktree add -b "$branch_name" "$worktree_dir" "origin/main"
+      fi
+    ) || return 1
   fi
 
   (cd "$worktree_dir" && pnpm wt:setup) || return 1
@@ -314,7 +323,16 @@ wt() {
   fi
 
   if [ ! -d "$worktree_dir" ]; then
-    (cd "$main_repo" && git worktree add -b "$branch_name" "$worktree_dir" "origin/main") || return 1
+    (
+      cd "$main_repo" || exit 1
+      if git show-ref --verify --quiet "refs/heads/$branch_name"; then
+        git worktree add "$worktree_dir" "$branch_name"
+      elif git show-ref --verify --quiet "refs/remotes/origin/$branch_name"; then
+        git worktree add --track -b "$branch_name" "$worktree_dir" "origin/$branch_name"
+      else
+        git worktree add -b "$branch_name" "$worktree_dir" "origin/main"
+      fi
+    ) || return 1
   fi
 
   if [ -x "$worktree_dir/bin/wt-setup.sh" ]; then
