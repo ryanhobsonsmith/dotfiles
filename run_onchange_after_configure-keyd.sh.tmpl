@@ -1,5 +1,6 @@
 {{ if eq .chezmoi.os "linux" -}}
 #!/bin/bash
+set -euo pipefail
 # Configure keyd for caps -> esc (tap) / ctrl (hold)
 # config hash: {{ include "dot_config/keyd/default.conf" | sha256sum }}
 
