@@ -88,5 +88,6 @@
   "effortLevel": "xhigh",
   "editorMode": "vim",
   "agentPushNotifEnabled": true,
-  "useAutoModeDuringPlan": false
+  "useAutoModeDuringPlan": true,
+  "skipAutoPermissionPrompt": true
 }
