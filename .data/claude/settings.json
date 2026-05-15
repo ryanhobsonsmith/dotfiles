@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/Users/rhsmith/.claude/hooks/block-home-dir.sh"
+            "command": "~/.claude/hooks/block-home-dir.sh"
           },
           {
             "type": "command",

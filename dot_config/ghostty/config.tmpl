@@ -20,6 +20,11 @@ adjust-cell-height = +10%
 # Send Ctrl+Tab as CSI-u sequence for tmux window switching
 keybind = ctrl+tab=text:\x1b[9;5u
 
+# Cmd+Left/Right behave like Home/End in macOS. Send the Home/End escape
+# sequences (not Ctrl+A/E, which collide with the tmux C-a prefix).
+keybind = cmd+left=text:\x1b[H
+keybind = cmd+right=text:\x1b[F
+
 # Custom tab/window switching: remaps Cmd+N to send Alt+N (for tmux window switching),
 # moves Ghostty tab switching to Cmd+Ctrl+N. Disabled to keep default Cmd+N = Ghostty tabs.
 # To re-enable: uncomment all lines below.

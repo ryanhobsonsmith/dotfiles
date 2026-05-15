@@ -89,7 +89,6 @@ Karabiner is the exception: it does atomic writes that replace the symlink with 
 |---|---|
 | `~/.claude/settings.json` | `.data/claude/settings.json` |
 | `~/.claude/keybindings.json` | `.data/claude/keybindings.json` |
-| `~/.claude/hooks/block-home-dir.sh` | `.data/claude/hooks/block-home-dir.sh` |
 
 ### Karabiner (modify_ script)
 

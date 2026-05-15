@@ -3,8 +3,9 @@
 
 pane_count=$(tmux list-panes | wc -l | tr -d ' ')
 
-entries="sidebar    [|][][]  1/3 + 2/3 split
-even       [||][][]  50/50 split"
+entries="sidebar     [|][][]  1/3 + 2/3 split
+sidebar-r   [][][|]  2/3 + 1/3 split (right)
+even        [||][][]  50/50 split"
 
 if [ "$pane_count" -gt 2 ]; then
   entries+="
@@ -19,6 +20,10 @@ selected=$(printf '%s' "$entries" | fzf --height=~8 --layout=reverse --border=ro
 case "$selected" in
   sidebar)
     tmux set-window-option main-pane-width '33%'
+    tmux select-layout main-vertical
+    ;;
+  sidebar-r)
+    tmux set-window-option main-pane-width '67%'
     tmux select-layout main-vertical
     ;;
   even)
