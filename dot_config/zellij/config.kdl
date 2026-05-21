@@ -1,0 +1,114 @@
+// Zellij config — trial setup for a tmux user.
+//
+// Mental model: only two modes matter.
+//   - locked  = invisible, all keys pass through to shell/nvim
+//   - tmux    = sticky command mode; everything you type is a zellij command
+//
+// `keybinds clear-defaults=true` wipes ALL built-in zellij bindings so we
+// never accidentally land in `normal`, `pane`, `tab`, etc. The built-in
+// `tmux` mode bindings normally end with SwitchToMode "normal" — that's
+// what would otherwise cause "sometimes I need Ctrl-b" confusion.
+
+theme "catppuccin-mocha"
+default_mode "locked"
+default_layout "compact"
+pane_frames false
+mouse_mode true
+copy_on_select true
+session_serialization true
+copy_clipboard "system"
+
+plugins {
+    vim-zellij-navigator location="https://github.com/hiasr/vim-zellij-navigator/releases/download/0.2.1/vim-zellij-navigator.wasm"
+}
+
+keybinds clear-defaults=true {
+    locked {
+        bind "Ctrl a" { SwitchToMode "tmux"; }
+    }
+
+    // Sticky command mode — chain commands, exit explicitly with Esc/Ctrl-a/Ctrl-b
+    tmux {
+        // splits
+        bind "|" { NewPane "Right"; }
+        bind "-" { NewPane "Down"; }
+
+        // pane focus (vim-style)
+        bind "h" { MoveFocus "Left"; }
+        bind "j" { MoveFocus "Down"; }
+        bind "k" { MoveFocus "Up"; }
+        bind "l" { MoveFocus "Right"; }
+
+        // pane management
+        bind "z" { ToggleFocusFullscreen; }
+        bind "x" { CloseFocus; }
+
+        // tabs
+        bind "c" { NewTab; }
+        bind "X" { CloseTab; }
+        bind "a" { GoToPreviousTab; }
+        bind "n" { GoToNextTab; }
+        bind "p" { GoToPreviousTab; }
+        bind "," { SwitchToMode "renametab"; }
+
+        // sessions
+        bind "o" { LaunchOrFocusPlugin "session-manager" {
+            floating true
+        }; }
+        bind "d" { Detach; }
+        bind "Q" { Detach; }
+
+        // exit back to locked — Ctrl-b also handled so tmux muscle memory works
+        bind "Esc"    { SwitchToMode "locked"; }
+        bind "Ctrl a" { SwitchToMode "locked"; }
+        bind "Ctrl b" { SwitchToMode "locked"; }
+    }
+
+    // Rename-tab is its own mode (zellij captures keystrokes into the tab
+    // name). Make sure Enter/Esc return to locked, not normal.
+    renametab {
+        bind "Esc"   { SwitchToMode "locked"; }
+        bind "Enter" { SwitchToMode "locked"; }
+    }
+
+    // Always-on: window switching + smart-splits nvim integration.
+    // Excluded from `locked` so they pass through to nvim when in passthrough mode.
+    shared_except "locked" {
+        bind "Alt 1" { GoToTab 1; }
+        bind "Alt 2" { GoToTab 2; }
+        bind "Alt 3" { GoToTab 3; }
+        bind "Alt 4" { GoToTab 4; }
+        bind "Alt 5" { GoToTab 5; }
+        bind "Alt 6" { GoToTab 6; }
+        bind "Alt 7" { GoToTab 7; }
+        bind "Alt 8" { GoToTab 8; }
+        bind "Alt 9" { GoToTab 9; }
+        bind "Alt ," { GoToPreviousTab; }
+        bind "Alt ." { GoToNextTab; }
+
+        bind "Ctrl h" {
+            MessagePlugin "vim-zellij-navigator" {
+                name "move_focus";
+                payload "left";
+            };
+        }
+        bind "Ctrl j" {
+            MessagePlugin "vim-zellij-navigator" {
+                name "move_focus";
+                payload "down";
+            };
+        }
+        bind "Ctrl k" {
+            MessagePlugin "vim-zellij-navigator" {
+                name "move_focus";
+                payload "up";
+            };
+        }
+        bind "Ctrl l" {
+            MessagePlugin "vim-zellij-navigator" {
+                name "move_focus";
+                payload "right";
+            };
+        }
+    }
+}

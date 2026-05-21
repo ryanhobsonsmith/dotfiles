@@ -42,6 +42,7 @@ Personal dotfiles managed with [chezmoi](https://www.chezmoi.io/).
 | [bw](https://bitwarden.com/help/cli/) | `brew install bitwarden-cli` | Bitwarden secrets |
 | [hub](https://hub.github.com/) | `brew install hub` | GitHub pull requests |
 | [cargo](https://www.rust-lang.org/tools/install) | `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \| sh` | Rust toolchain |
+| [zellij](https://zellij.dev/) | `brew install zellij` | Terminal multiplexer (tmux alternative, trial) |
 
 Encrypted files use [age](https://github.com/FiloSottile/age) with the SSH key at `~/.ssh/id_ed25519` as both recipient and identity (configured in `~/.config/chezmoi/chezmoi.yaml`). On a new machine, ensure that key exists before running `chezmoi apply`, or encrypted files (e.g. `.config/claude-zai/env.sh`) will fail to decrypt.
 
@@ -133,6 +134,27 @@ The z.ai token and model remapping live encrypted at `dot_config/claude-zai/encr
 | Cmd+N (1-9) | Switch tmux window N |
 | Cmd+Ctrl+N (1-9) | Switch Ghostty tab N |
 | Cmd+0 | Reset font size |
+
+### Zellij keybindings (trial — alongside tmux)
+
+Starts in `locked` mode (zellij stays out of the way — terminal keys all pass through). `Ctrl+A` flips to `tmux` mode (sticky — chain commands; press `Esc` or `Ctrl+A` again to exit). `chezmoi apply` installs `~/.config/zellij/config.kdl`; tmux remains the default daily driver.
+
+| Shortcut | Action |
+|---|---|
+| Ctrl+A | Enter tmux mode (status bar shows `TMUX`) |
+| Esc / Ctrl+A | Exit back to `locked` mode |
+| Ctrl+A then \| | Split pane horizontal |
+| Ctrl+A then - | Split pane vertical |
+| Ctrl+A then x | Close pane |
+| Ctrl+A then X | Close tab |
+| Ctrl+A then a | Last tab |
+| Ctrl+A then , | Rename tab |
+| Ctrl+A then c | New tab |
+| Ctrl+A then o | Session manager popup |
+| Alt+N (1-9) | Switch tab N (works in any mode) |
+| Ctrl+h/j/k/l | Smart-splits pane/window nav (via vim-zellij-navigator plugin) |
+
+CLI: `zellij -s foo` (new), `zellij attach foo --create` (attach), `zellij ls` (list). Config hot-reloads on save.
 
 ### Tmux keybindings (prefix = Ctrl+A)
 

@@ -66,6 +66,22 @@ if ! command -v starship >/dev/null 2>&1; then
   curl -sS https://starship.rs/install.sh | sh -s -- -y
 fi
 
+# zellij (not in apt repos) — install from GitHub releases
+if ! command -v zellij >/dev/null 2>&1; then
+  echo "Installing zellij from GitHub releases..."
+  arch=$(uname -m)
+  case "$arch" in
+    x86_64)  zellij_arch="x86_64" ;;
+    aarch64) zellij_arch="aarch64" ;;
+    *) echo "Unsupported architecture for zellij: $arch"; exit 1 ;;
+  esac
+  zellij_tmp=$(mktemp -d)
+  curl -fsSL "https://github.com/zellij-org/zellij/releases/latest/download/zellij-${zellij_arch}-unknown-linux-musl.tar.gz" \
+    | tar xz -C "$zellij_tmp"
+  sudo install -m 0755 "$zellij_tmp/zellij" /usr/local/bin/zellij
+  rm -rf "$zellij_tmp"
+fi
+
 # fnm (not in apt repos)
 if ! command -v fnm >/dev/null 2>&1; then
   echo "Installing fnm..."

@@ -20,6 +20,7 @@ sudo pacman -Syu --needed --noconfirm \
   tmux \
   unzip \
   xclip \
+  zellij \
   zoxide \
   zsh
 
