@@ -7,7 +7,7 @@ This repo manages dotfiles and shell environment for macOS using [chezmoi](https
 - **OS:** macOS (Darwin/arm64)
 - **Shell:** zsh
 - **Chezmoi config:** `~/.config/chezmoi/chezmoi.yaml`
-- **Encryption:** age (symmetric, using `~/.ssh/id_rsa` as identity)
+- **Encryption:** age (asymmetric, using `~/.ssh/id_ed25519` as both recipient and identity; configured in `~/.config/chezmoi/chezmoi.yaml`)
 
 ## Chezmoi Basics
 
@@ -106,6 +106,27 @@ To change a hotkey or add a new rule, edit `.data/karabiner/desired-rules.json` 
 - **Copies** (default) — for files you control entirely (shell config, gitconfig).
 - **Modify templates** (`modify_` + `setValueAtPath`) — for files where you only want to enforce a few scalar keys while letting the app manage the rest. Uses `fromJson`/`toJson` pipeline via Go templates.
 - **Modify scripts** (`modify_` + `jq`) — for files where you need to merge by identity into arrays (e.g., Karabiner rules merged by `description`). The script receives the current file on stdin and outputs the new contents.
+
+## Claude Code Provider Switching
+
+Claude Code can run against either the native Anthropic API or z.ai (GLM via an Anthropic-compatible endpoint). Provider-specific config is injected via **environment variables at launch time** (shell functions in `.shellrc`). The shared `~/.claude/settings.json` carries only the model pin (`"model": "opus[1m]"`), which works for both providers — z.ai remaps `opus` to `glm-5.2[1m]` via its env vars. This avoids duplicating the shared config across two settings files.
+
+### How it works
+
+- `claude-native` — launches the real binary with native Anthropic defaults. `~/.claude/settings.json`'s `opus[1m]` model applies directly.
+- `claude-zai` — sources `~/.config/claude-zai/env.sh` (the z.ai token, base URL, timeouts, and GLM model remapping: haiku→`glm-4.7`, sonnet/opus→`glm-5.2[1m]`), then launches. The `opus[1m]` request from settings.json gets remapped to `glm-5.2[1m]`.
+- `claude` — alias of `$CLAUDE_DEFAULT_PROVIDER` (defaults to `claude-native`). `claude_resume` and the `cts` dev layout invoke `"$CLAUDE_DEFAULT_PROVIDER"`, so they honor the default too.
+
+### The encrypted z.ai env file
+
+The token + GLM remapping live at `dot_config/claude-zai/encrypted_private_env.sh.age` (age-encrypted with the ed25519 SSH key), decrypted to `~/.config/claude-zai/env.sh` (0600) by `chezmoi apply`. This keeps the secret out of the public git repo while still being managed by chezmoi.
+
+To rotate the token or change z.ai model mappings, edit the **source**: decrypt with `chezmoi edit ~/.config/claude-zai/env.sh` (or `chezmoi cat` to view), then `chezmoi apply` to re-encrypt and deploy.
+
+### Switching the default
+
+- One-off: invoke `claude-native` or `claude-zai` directly.
+- Persistent default change: set `CLAUDE_DEFAULT_PROVIDER=claude-native` (e.g. in a local `~/.zshrc.local` sourced after `.shellrc`) and reload the shell.
 
 ## Tmux Config
 

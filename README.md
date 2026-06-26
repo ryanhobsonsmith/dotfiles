@@ -43,7 +43,7 @@ Personal dotfiles managed with [chezmoi](https://www.chezmoi.io/).
 | [hub](https://hub.github.com/) | `brew install hub` | GitHub pull requests |
 | [cargo](https://www.rust-lang.org/tools/install) | `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \| sh` | Rust toolchain |
 
-SSH key at `~/.ssh/id_rsa` is used as the age identity for encrypted files.
+Encrypted files use [age](https://github.com/FiloSottile/age) with the SSH key at `~/.ssh/id_ed25519` as both recipient and identity (configured in `~/.config/chezmoi/chezmoi.yaml`). On a new machine, ensure that key exists before running `chezmoi apply`, or encrypted files (e.g. `.config/claude-zai/env.sh`) will fail to decrypt.
 
 ### Install on a new machine
 
@@ -98,8 +98,21 @@ chezmoi update                 # pull from remote and apply
 | `.tmux/scripts/claude-tmux-hook.sh` | Claude Code hook for tmux status integration |
 | `.tmux/scripts/claude-tmux-status.sh` | Reads claude state for tmux window tabs |
 | `.tmux/scripts/session-list.sh` | Renders session bar with claude status icons |
+| `.config/claude-zai/env.sh` | z.ai provider env for Claude Code (age-encrypted — token + GLM model remapping; sourced by the `claude-zai` function) |
 
 Shell config is split so that shared settings (env vars, aliases, functions like `cts`/`ts`) live in `.shellrc` and are available in both shells. Shell-specific features (completions, prompts, keybindings) stay in `.zshrc`/`.bashrc`.
+
+## Claude Code provider switching
+
+Claude Code can run against either the native Anthropic API or z.ai (GLM via an Anthropic-compatible endpoint). Provider-specific config is injected via environment variables at launch time, so the shared `~/.claude/settings.json` stays provider-neutral except for the model pin (`"model": "opus[1m]"`, which applies to both providers — z.ai remaps `opus` to `glm-5.2[1m]` via env vars).
+
+| Command | Provider |
+|---|---|
+| `claude-native` | Native Anthropic API |
+| `claude-zai` | z.ai / GLM (model remapping: haiku→`glm-4.7`, sonnet/opus→`glm-5.2[1m]`) |
+| `claude` | Alias of the default provider (set by `$CLAUDE_DEFAULT_PROVIDER`, defaults to `claude-native`) |
+
+The z.ai token and model remapping live encrypted at `dot_config/claude-zai/encrypted_private_env.sh.age`, decrypted to `~/.config/claude-zai/env.sh` (0600) by `chezmoi apply`. `claude_resume` and the `cts` dev layout honor `$CLAUDE_DEFAULT_PROVIDER`, so `cts` launches Claude under the default provider. To switch the default, set `CLAUDE_DEFAULT_PROVIDER=claude-native` (e.g. in `~/.zshrc.local`) and reload your shell, or just invoke the explicit function for a one-off.
 
 ## Keyboard shortcuts
 

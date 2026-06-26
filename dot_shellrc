@@ -132,6 +132,44 @@ aws_al_auth() {
   aws sso login --profile=al-prod
 }
 
+# ── Claude Code provider switching ──────────────────────────
+# Provider-specific config is injected via env vars at launch time, so the
+# shared ~/.claude/settings.json stays provider-neutral (no `env` block, no
+# model pin). The z.ai token + model remapping live encrypted at
+# dot_config/claude-zai/encrypted_private_env.sh.age, decrypted to
+# ~/.config/claude-zai/env.sh (0600) by `chezmoi apply`.
+#
+# claude-native : native Anthropic API
+# claude-zai    : z.ai (GLM, Anthropic-compatible API)
+# claude        : alias of the default provider (CLAUDE_DEFAULT_PROVIDER below)
+
+# Which provider `claude` (and claude_resume / cts) uses by default.
+# Change to claude-native if you want the native API as the default.
+: "${CLAUDE_DEFAULT_PROVIDER:=claude-native}"
+
+claude-native() {
+  command claude "$@"
+}
+
+claude-zai() {
+  local env_file="$HOME/.config/claude-zai/env.sh"
+  if [ ! -r "$env_file" ]; then
+    echo "claude-zai: $env_file missing — run 'chezmoi apply' to decrypt it." >&2
+    return 1
+  fi
+  # Run in a subshell so the provider env vars don't leak into the parent
+  # shell after claude exits — this lets you switch providers freely without
+  # a fresh terminal.
+  (
+    set -a; . "$env_file"; set +a
+    command claude "$@"
+  )
+}
+
+# Route bare `claude` through the default provider. Functions defined below
+# (claude_resume, cts) call "$CLAUDE_DEFAULT_PROVIDER" so they honor this too.
+alias claude="$CLAUDE_DEFAULT_PROVIDER"
+
 # ── Claude Code session resume ───────────────────────────────
 # Launch claude, resuming the most recent session in the current dir if one exists.
 # Claude stores sessions in ~/.claude/projects/<encoded-cwd>/*.jsonl where the
@@ -141,9 +179,9 @@ claude_resume() {
   encoded="${encoded//./-}"
   local proj_dir="$HOME/.claude/projects/$encoded"
   if ls "$proj_dir"/*.jsonl >/dev/null 2>&1; then
-    claude --continue
+    "$CLAUDE_DEFAULT_PROVIDER" --continue
   else
-    claude
+    "$CLAUDE_DEFAULT_PROVIDER"
   fi
 }
 
