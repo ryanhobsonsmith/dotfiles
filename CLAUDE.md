@@ -128,6 +128,12 @@ To rotate the token or change z.ai model mappings, edit the **source**: decrypt 
 - One-off: invoke `claude-native` or `claude-zai` directly.
 - Persistent default change: set `CLAUDE_DEFAULT_PROVIDER=claude-native` (e.g. in a local `~/.zshrc.local` sourced after `.shellrc`) and reload the shell.
 
+### Truecolor inside tmux (`TMUX=` in the wrappers)
+
+Both provider functions launch via `TMUX= command claude "$@"`. Claude Code's color detection keys off the `$TMUX` env var and **unconditionally downsamples to 256-color when it sees tmux** — ignoring `COLORTERM`, `FORCE_COLOR`, and the terminfo `RGB` capability. Hiding `$TMUX` makes Claude think it's in a direct terminal, so it emits 24-bit truecolor, which tmux's RGB passthrough (`terminal-features ...:RGB` in `dot_tmux.conf`) renders at full fidelity. Without this, Claude's colors look muted in tmux while vim and ANSI colors look fine (vim isn't emitting truecolor to begin with).
+
+This is a known Claude Code limitation — tracked in [anthropics/claude-code#59867](https://github.com/anthropics/claude-code/issues/59867) and [#60788](https://github.com/anthropics/claude-code/issues/60788); `FORCE_COLOR=3` was tried upstream and does **not** work. The tmux status hooks are unaffected because they key off `$TMUX_PANE` (still set) and reach the server via the default socket. Trade-off: Claude no longer knows it's in tmux, so if its passthrough features (notifications / cursor shape) misbehave, drop the `TMUX=` prefix to revert.
+
 ## Tmux Config
 
 - **Theme:** Catppuccin Mocha (via TPM plugin)

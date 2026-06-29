@@ -52,6 +52,8 @@ export KUBECONFIG="$HOME/.kube/config:$HOME/smack/infra/smack-demo-cluster.json"
 # ── Aliases ──────────────────────────────────────────────────
 alias pn='pnpm'
 alias cmce='(cd ~/.local/share/chezmoi && nvim .)'
+alias cme='chezmoi edit'
+alias cmea='chezmoi edit --apply'
 alias nvce='(cd ~/.config/nvim && nvim .)'
 alias nvclear='rm -rf ~/.cache/nvim && echo "Neovim cache cleared"'
 alias rrc='exec zsh'
@@ -148,7 +150,12 @@ aws_al_auth() {
 : "${CLAUDE_DEFAULT_PROVIDER:=claude-native}"
 
 claude-native() {
-  command claude "$@"
+  # Hide $TMUX so Claude Code emits 24-bit truecolor instead of force-degrading
+  # to 256-color when it detects tmux (it ignores COLORTERM/FORCE_COLOR/terminfo
+  # RGB). tmux's RGB passthrough renders the truecolor output vibrantly. Status
+  # hooks are unaffected — they use $TMUX_PANE (preserved) + the default tmux
+  # socket. See anthropics/claude-code#59867, #60788.
+  TMUX= command claude "$@"
 }
 
 claude-zai() {
@@ -162,7 +169,8 @@ claude-zai() {
   # a fresh terminal.
   (
     set -a; . "$env_file"; set +a
-    command claude "$@"
+    # TMUX= hides tmux from Claude so it emits truecolor (see claude-native).
+    TMUX= command claude "$@"
   )
 }
 
