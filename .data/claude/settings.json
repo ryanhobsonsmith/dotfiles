@@ -1,4 +1,9 @@
 {
+  "permissions": {
+    "ask": [
+      "Artifact"
+    ]
+  },
   "model": "opus[1m]",
   "hooks": {
     "UserPromptSubmit": [
@@ -86,7 +91,7 @@
     "typescript-lsp@claude-plugins-official": true
   },
   "alwaysThinkingEnabled": true,
-  "effortLevel": "xhigh",
+  "effortLevel": "medium",
   "editorMode": "vim",
   "agentPushNotifEnabled": true,
   "skipAutoPermissionPrompt": true,
