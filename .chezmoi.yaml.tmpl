@@ -1,0 +1,10 @@
+# chezmoi config template — generated into ~/.config/chezmoi/chezmoi.yaml on `chezmoi init`.
+# Encrypted files use age with the ed25519 SSH key as recipient/identity.
+# NOTE: the private key (~/.ssh/id_ed25519) is NOT in this repo — copy it to new
+# machines out-of-band before running `chezmoi init`, or decryption will fail.
+encryption: age
+age:
+  command: age
+  identity: ~/.ssh/id_ed25519
+  recipient: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBHmWjizJbvEnzmhmwdM3EP05HMldBcF0uExJ+nV/AOZ ryanhobsonsmith@gmail.com"
+  suffix: ".age"

@@ -6,8 +6,8 @@ This repo manages dotfiles and shell environment for macOS using [chezmoi](https
 
 - **OS:** macOS (Darwin/arm64)
 - **Shell:** zsh
-- **Chezmoi config:** `~/.config/chezmoi/chezmoi.yaml`
-- **Encryption:** age (asymmetric, using `~/.ssh/id_ed25519` as both recipient and identity; configured in `~/.config/chezmoi/chezmoi.yaml`)
+- **Chezmoi config:** `~/.config/chezmoi/chezmoi.yaml` (generated from `.chezmoi.yaml.tmpl` in this repo on `chezmoi init`, so new machines get the age config automatically)
+- **Encryption:** age (asymmetric, using `~/.ssh/id_ed25519` as both recipient and identity; the `age` block lives in `.chezmoi.yaml.tmpl`). The private key is **not** in the repo — copy `~/.ssh/id_ed25519` to new machines out-of-band before `chezmoi apply`, or decryption fails with `encryption not configured`.
 
 ## Chezmoi Basics
 
