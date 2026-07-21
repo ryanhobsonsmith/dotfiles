@@ -220,7 +220,7 @@ cts() {
 
 ts() {
   local selected
-  selected=$(find ~/algebralabs ~/projects -mindepth 1 -maxdepth 1 -type d 2>/dev/null | fzf --reverse)
+  selected=$(find ~/algebralabs ~/projects ~/Projects -mindepth 1 -maxdepth 1 -type d 2>/dev/null | fzf --reverse)
   [ -n "$selected" ] && cts "$selected"
 }
 

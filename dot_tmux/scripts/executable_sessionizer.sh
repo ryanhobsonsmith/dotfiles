@@ -4,7 +4,7 @@
 set -uo pipefail
 
 STATE_DIR="/tmp/claude-tmux"
-SEARCH_DIRS="$HOME/algebralabs $HOME/projects $HOME/chomp"
+SEARCH_DIRS="$HOME/algebralabs $HOME/projects $HOME/chomp $HOME/Projects"
 PINNED_DIRS="$HOME/.local/share/chezmoi $HOME/.config/nvim"
 
 # --- helpers ---
@@ -18,18 +18,21 @@ claude_icon() {
     local state
     state=$(cat "$file" 2>/dev/null)
     case "$state" in
-      waiting) best="waiting"; break ;;
-      done)    [ "$best" != "waiting" ] && best="done" ;;
-      working) [ "$best" != "waiting" ] && [ "$best" != "done" ] && best="working" ;;
-      idle)    [ -z "$best" ] && best="idle" ;;
+    waiting)
+      best="waiting"
+      break
+      ;;
+    done) [ "$best" != "waiting" ] && best="done" ;;
+    working) [ "$best" != "waiting" ] && [ "$best" != "done" ] && best="working" ;;
+    idle) [ -z "$best" ] && best="idle" ;;
     esac
   done
   case "$best" in
-    working) printf '\033[38;2;250;179;135m󰚩\033[0m' ;;
-    done)    printf '\033[38;2;166;227;161m󰚩\033[0m' ;;
-    waiting) printf '\033[38;2;243;139;168m󰚩\033[0m' ;;
-    idle)    printf '\033[38;2;108;112;134m󰚩\033[0m' ;;
-    *)       printf ' ' ;;
+  working) printf '\033[38;2;250;179;135m󰚩\033[0m' ;;
+  done) printf '\033[38;2;166;227;161m󰚩\033[0m' ;;
+  waiting) printf '\033[38;2;243;139;168m󰚩\033[0m' ;;
+  idle) printf '\033[38;2;108;112;134m󰚩\033[0m' ;;
+  *) printf ' ' ;;
   esac
 }
 
@@ -100,8 +103,14 @@ preview_cmd() {
 
 # Sub-command dispatch (called by fzf reload/preview bindings)
 case "${1:-}" in
-  --preview) preview_cmd "${2:-}"; exit 0 ;;
-  --list)    list_entries; exit 0 ;;
+--preview)
+  preview_cmd "${2:-}"
+  exit 0
+  ;;
+--list)
+  list_entries
+  exit 0
+  ;;
 esac
 
 # --- main picker ---
@@ -114,14 +123,14 @@ selected=$(list_entries | fzf --ansi --no-sort --reverse \
   --preview "$SELF --preview {2..}" \
   --preview-window right:50% \
   --bind "ctrl-x:execute-silent(tmux kill-session -t {2..} 2>/dev/null)+reload($SELF --list)" \
-  --bind "ctrl-r:reload($SELF --list)" \
-  | sed 's/^[[:space:]]*//' | sed 's/^[^ ]* //')
+  --bind "ctrl-r:reload($SELF --list)" |
+  sed 's/^[[:space:]]*//' | sed 's/^[^ ]* //')
 
 [ -z "$selected" ] && exit 0
 
 # Skip separator lines
 case "$selected" in
-  ──*) exit 0 ;;
+──*) exit 0 ;;
 esac
 
 # Connect to existing session or create new one
