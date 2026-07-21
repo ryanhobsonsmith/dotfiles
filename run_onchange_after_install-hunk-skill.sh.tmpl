@@ -1,0 +1,17 @@
+#!/bin/bash
+set -euo pipefail
+
+# Sync Hunk's bundled hunk-review Claude Code skill into ~/.claude/skills.
+# Re-runs on hunk version changes (see hash below) so upgrades stay in sync.
+# hunk version: {{ if (lookPath "hunk") }}{{ output "hunk" "--version" | trim }}{{ else }}not installed{{ end }}
+
+if ! command -v hunk >/dev/null 2>&1; then
+  echo "hunk not installed, skipping hunk-review skill sync"
+  exit 0
+fi
+
+skill_src="$(hunk skill path)"
+skill_dir="$HOME/.claude/skills/hunk-review"
+mkdir -p "$skill_dir"
+cp "$skill_src" "$skill_dir/SKILL.md"
+echo "Synced hunk-review skill to $skill_dir/SKILL.md"

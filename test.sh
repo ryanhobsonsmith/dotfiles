@@ -21,6 +21,8 @@ command -v direnv && echo "OK: direnv installed"
 command -v nvim && echo "OK: neovim installed"
 command -v starship && echo "OK: starship installed"
 if [ "$(uname)" = "Linux" ]; then command -v xclip && echo "OK: xclip installed"; fi
+# hunk is Homebrew-only on Linux (not in apt/pacman) — only check if brew is present
+if [ "$(uname)" = "Darwin" ] || command -v brew >/dev/null 2>&1; then command -v hunk && echo "OK: hunk installed"; fi
 test -f ~/.config/starship.toml && echo "OK: starship.toml"
 test -d ~/.config/nvim && echo "OK: nvim config"
 echo "=== All checks passed ==="

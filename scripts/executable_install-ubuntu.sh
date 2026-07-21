@@ -66,6 +66,16 @@ if ! command -v starship >/dev/null 2>&1; then
   curl -sS https://starship.rs/install.sh | sh -s -- -y
 fi
 
+# hunk (not in apt repos) — only packaged via Homebrew (homebrew-core has Linux bottles)
+if ! command -v hunk >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+    echo "Installing hunk via Homebrew..."
+    brew install hunk
+  else
+    echo "Skipping hunk: not in apt repos, requires Homebrew (brew.sh)"
+  fi
+fi
+
 # zellij (not in apt repos) — install from GitHub releases
 if ! command -v zellij >/dev/null 2>&1; then
   echo "Installing zellij from GitHub releases..."

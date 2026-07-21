@@ -23,6 +23,7 @@ Personal dotfiles managed with [chezmoi](https://www.chezmoi.io/).
 | [Neovim](https://neovim.io/) | `brew install neovim` | `cts` dev layout, default editor |
 | [starship](https://starship.rs/) | `brew install starship` | Shell prompt |
 | [Claude Code](https://claude.ai/code) | `npm install -g @anthropic-ai/claude-code` | `cts` dev layout |
+| [Hunk](https://hunk.dev/) | `brew install hunk` | `hd`/`hdc` diff review, `hunk-review` Claude Code skill |
 | [just](https://github.com/casey/just) | `brew install just` | Task runner (justfile) |
 | [jq](https://jqlang.org/) | `brew install jq` | Merging rules into `karabiner.json` on `chezmoi apply` |
 | [xclip](https://github.com/astrand/xclip) | `apt install xclip` / `pacman -S xclip` | Clipboard image paste in tmux (Linux only) |
@@ -44,7 +45,7 @@ Personal dotfiles managed with [chezmoi](https://www.chezmoi.io/).
 | [cargo](https://www.rust-lang.org/tools/install) | `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \| sh` | Rust toolchain |
 | [zellij](https://zellij.dev/) | `brew install zellij` | Terminal multiplexer (tmux alternative, trial) |
 
-Encrypted files use [age](https://github.com/FiloSottile/age) with the SSH key at `~/.ssh/id_ed25519` as both recipient and identity (configured in `~/.config/chezmoi/chezmoi.yaml`). On a new machine, ensure that key exists before running `chezmoi apply`, or encrypted files (e.g. `.config/claude-zai/env.sh`) will fail to decrypt.
+Encrypted files use [age](https://github.com/FiloSottile/age) with the SSH key at `~/.ssh/id_ed25519` as both recipient and identity. The chezmoi config that wires this up (`~/.config/chezmoi/chezmoi.yaml`) is generated from `.chezmoi.yaml.tmpl` in this repo on `chezmoi init`, so new machines get the age config automatically. On a new machine, ensure the private key `~/.ssh/id_ed25519` exists (copy it out-of-band — it is **not** in this repo) before running `chezmoi apply`, or encrypted files (e.g. `.config/claude-zai/env.sh`) will fail to decrypt with `encryption not configured` / decrypt errors.
 
 ### Install on a new machine
 
@@ -100,6 +101,7 @@ chezmoi update                 # pull from remote and apply
 | `.tmux/scripts/claude-tmux-status.sh` | Reads claude state for tmux window tabs |
 | `.tmux/scripts/session-list.sh` | Renders session bar with claude status icons |
 | `.config/claude-zai/env.sh` | z.ai provider env for Claude Code (age-encrypted — token + GLM model remapping; sourced by the `claude-zai` function) |
+| `.claude/skills/hunk-review/SKILL.md` | Hunk's bundled Claude Code skill for driving live Hunk sessions (`hunk session *`) — synced from the installed hunk binary by `run_onchange_after_install-hunk-skill.sh.tmpl`, re-runs on hunk version bumps |
 
 Shell config is split so that shared settings (env vars, aliases, functions like `cts`/`ts`) live in `.shellrc` and are available in both shells. Shell-specific features (completions, prompts, keybindings) stay in `.zshrc`/`.bashrc`.
 
@@ -245,6 +247,15 @@ alwt-stop --force           # skip confirmation prompts
 ```
 
 Kills all windows in the session (stops dev servers), opens a cleanup window to run `cleanup-worktree.sh` (removes git worktree + Neon branch), then kills the session and switches to the previous one.
+
+### `hd` / `hdc` — Hunk diff review
+
+```sh
+hd                           # plain `hunk diff --watch` in the current pane, no tmux involved
+hdc                          # open/jump to a "hunkdiff" window in the current worktree's cts/alwt session
+```
+
+`hdc` requires an existing worktree tmux session (created by `alwt`/`cts`). It inserts a `hunkdiff` window at index 1 (bumping other windows right) split 1/3 claude (left) + 2/3 `hunk diff --watch` (right), both rooted at the worktree directory. Re-running `hdc` in the same session jumps to the existing window instead of creating a duplicate. Hunk session comments/notes live only as long as the pane does, which ties their lifetime to the worktree's — see `hunk-review` skill below for having Claude drive the live session (navigate, leave comments) via `hunk session *`.
 
 ## Testing
 

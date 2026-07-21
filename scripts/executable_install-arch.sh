@@ -30,6 +30,16 @@ if ! command -v fnm >/dev/null 2>&1; then
   curl -fsSL https://fnm.vercel.app/install | bash
 fi
 
+# hunk (not in official repos) — only packaged via Homebrew (homebrew-core has Linux bottles)
+if ! command -v hunk >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+    echo "Installing hunk via Homebrew..."
+    brew install hunk
+  else
+    echo "Skipping hunk: not in pacman repos, requires Homebrew (brew.sh)"
+  fi
+fi
+
 # Install Node.js LTS via fnm
 if command -v fnm >/dev/null 2>&1; then
   eval "$(fnm env)"
